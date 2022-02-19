@@ -35,8 +35,13 @@ internal class Program
         //initialize connection to redis
         redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         IDatabase db = redis.GetDatabase();
-
-
+        
+        Dictionary<string, int> wawa = new() {{"one", 1}};
+        SetData("dicttest",wawa);
+        //dict is saved to redis
+        GetData<Dictionary<string,int>>("dicttest").Add("two",2);
+        Console.WriteLine(GetData<Dictionary<string,int>>("dicttest")["two"]);
+        
         await discord.ConnectAsync();
         await Task.Delay(-1);
     }

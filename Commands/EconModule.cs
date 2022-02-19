@@ -10,4 +10,11 @@ public class EconModule : BaseCommandModule
     {
         await ctx.RespondAsync("Greetings");
     }
+
+    [Command("register")]
+    public async Task RegisterCommand(CommandContext ctx)
+    {
+        var user = ctx.Member;
+        
+    }
 }
