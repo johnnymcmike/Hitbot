@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
+using Hitbot.Commands;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
@@ -18,6 +20,15 @@ internal class Program
     private static async Task MainAsync()
     {
         //CONNECTIONS
+        //read balances file
+        if (File.Exists("balances.json"))
+        {
+            EconModule.Balances = JsonConvert.DeserializeObject<Dictionary<DiscordMember,int>>(await File.ReadAllTextAsync("balances.json"))!;
+        }
+        else
+        {
+            File.Create("balances.json");
+        }
         //initialize connection to discord
         var discord = new DiscordClient(new DiscordConfiguration
         {
@@ -36,35 +47,8 @@ internal class Program
         redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         IDatabase db = redis.GetDatabase();
         
-        Dictionary<string, int> wawa = new() {{"one", 1}};
-        SetData("dicttest",wawa);
-        //dict is saved to redis
-        GetData<Dictionary<string,int>>("dicttest").Add("two",2);
-        Console.WriteLine(GetData<Dictionary<string,int>>("dicttest")["two"]);
         
         await discord.ConnectAsync();
         await Task.Delay(-1);
-    }
-
-    public static void SetData<T>(string key, T data)
-    {
-        IDatabase db = redis.GetDatabase();
-        db.StringSet(key, JsonConvert.SerializeObject(data));
-    }
-
-    public static T GetData<T>(string key)
-    {
-        try
-        {
-            IDatabase db = redis.GetDatabase();
-            RedisValue jsonresult = db.StringGet(key);
-            if (jsonresult.IsNull)
-                return default!;
-            return JsonConvert.DeserializeObject<T>(jsonresult)!;
-        }
-        catch
-        {
-            return default!;
-        }
     }
 }
