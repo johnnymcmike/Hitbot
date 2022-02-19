@@ -1,4 +1,6 @@
 .idea
+token.txt
+balances.json
 bin/
 obj/
 /packages/

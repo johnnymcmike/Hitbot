@@ -4,13 +4,12 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using Hitbot.Commands;
 using Newtonsoft.Json;
-using StackExchange.Redis;
 
 namespace Hitbot;
 
 internal class Program
 {
-    private static ConnectionMultiplexer redis;
+    public static Dictionary<string, string> config;
 
     private static void Main(string[] args)
     {
@@ -20,15 +19,20 @@ internal class Program
     private static async Task MainAsync()
     {
         //CONNECTIONS
-        //read balances file
+        //read in json files
         if (File.Exists("balances.json"))
         {
-            EconModule.Balances = JsonConvert.DeserializeObject<Dictionary<DiscordMember,int>>(await File.ReadAllTextAsync("balances.json"))!;
+            EconModule.BalanceBook =
+                JsonConvert.DeserializeObject<Dictionary<string, int>>(await File.ReadAllTextAsync("balances.json"))!;
         }
-        else
+
+        if (File.Exists("config.json"))
         {
-            File.Create("balances.json");
+            config = JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                await File.ReadAllTextAsync("config.json"))!;
+            EconModule.Currencyname = config["currencyname"];
         }
+
         //initialize connection to discord
         var discord = new DiscordClient(new DiscordConfiguration
         {
@@ -42,12 +46,11 @@ internal class Program
         });
         commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
-
         //initialize connection to redis
-        redis = await ConnectionMultiplexer.ConnectAsync("localhost");
-        IDatabase db = redis.GetDatabase();
-        
-        
+        // redis = await ConnectionMultiplexer.ConnectAsync("localhost");
+        // IDatabase db = redis.GetDatabase();
+
+
         await discord.ConnectAsync();
         await Task.Delay(-1);
     }
