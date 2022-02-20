@@ -105,9 +105,13 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
+        double rnum;
         chances = chances.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
         foreach (var entry in chances)
-            if (entry.Value > rand.NextDouble())
+        {
+            rnum = rand.NextDouble();
+            Console.WriteLine($"{entry.Key.Split("/")[1]}'s chances value is {entry.Value} and random is {rnum}");
+            if (entry.Value > rnum)
             {
                 econ.BalanceBook[entry.Key] += reward;
                 ClearLottoBook();
@@ -116,6 +120,8 @@ public class LottoModule : BaseCommandModule
                     $"earning {reward} {econ.Currencyname}! Congrats!");
                 return;
             }
+        }
+
 
         //if nobody got picked above
         ClearLottoBook();
