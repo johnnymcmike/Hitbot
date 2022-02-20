@@ -62,6 +62,7 @@ public class EconModule : BaseCommandModule
         [Description("The amount to be paid. No decimals.")]
         int amount)
     {
+        amount = Math.Abs(amount);
         DiscordMember? caller = ctx.Member;
         if (caller.Equals(recipient))
         {
@@ -69,29 +70,46 @@ public class EconModule : BaseCommandModule
             return;
         }
 
-        if (!econ.BalanceBook.ContainsKey(econ.GetBalancebookString(caller)))
+        string callerString = econ.GetBalancebookString(caller);
+        string recipientString = econ.GetBalancebookString(recipient);
+
+        if (!econ.BalanceBook.ContainsKey(callerString))
         {
             await ctx.Channel.SendMessageAsync("You aren't registered. Please do so with ~register.");
             return;
         }
 
-        if (!econ.BalanceBook.ContainsKey(econ.GetBalancebookString(recipient)))
+        if (recipient.IsBot)
         {
-            await ctx.Channel.SendMessageAsync("Registering recipient...");
-            econ.BalanceBook.Add(econ.GetBalancebookString(recipient), econ.startingamount);
+            if (econ.BalanceBook[callerString] < amount)
+            {
+                await ctx.Channel.SendMessageAsync("Insufficient funds.");
+                return;
+            }
+
+            LottoModule.LottoBook["pot"] += amount;
+            econ.BalanceBook[callerString] -= amount;
+            await ctx.Channel.SendMessageAsync(
+                $"You tried to pay a bot, so I put your {amount} kromer into the lottery pot. Lol.");
         }
 
-        if (econ.BalanceBook[econ.GetBalancebookString(caller)] < amount)
+        if (!econ.BalanceBook.ContainsKey(recipientString))
+        {
+            await ctx.Channel.SendMessageAsync("Registering recipient...");
+            econ.BalanceBook.Add(recipientString, econ.startingamount);
+        }
+
+        if (econ.BalanceBook[callerString] < amount)
         {
             await ctx.Channel.SendMessageAsync("Insufficient funds.");
             return;
         }
 
-        econ.BalanceBook[econ.GetBalancebookString(caller)] -= Math.Abs(amount);
-        econ.BalanceBook[econ.GetBalancebookString(recipient)] += Math.Abs(amount);
+        econ.BalanceBook[callerString] -= amount;
+        econ.BalanceBook[recipientString] += amount;
         await ctx.Channel.SendMessageAsync(
-            $"Paid {amount} {econ.Currencyname} to {recipient.Nickname} (you now have {econ.BalanceBook[econ.GetBalancebookString(caller)]}, " +
-            $"they have {econ.BalanceBook[econ.GetBalancebookString(recipient)]})");
+            $"Paid {amount} {econ.Currencyname} to {recipient.Nickname} (you now have {econ.BalanceBook[callerString]}, " +
+            $"they have {econ.BalanceBook[recipientString]})");
     }
 
     [Command("print")]

@@ -13,7 +13,7 @@ namespace Hitbot.Commands;
 [RequireGuild]
 public class LottoModule : BaseCommandModule
 {
-    private Dictionary<string, int> LottoBook;
+    public static Dictionary<string, int> LottoBook;
     public Random rand { get; set; }
     private readonly int lottoTicketprice;
     private readonly int lottoDrawprice;
