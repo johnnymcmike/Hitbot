@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using DSharpPlus;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Hitbot.Services;
@@ -11,6 +12,7 @@ namespace Hitbot.Commands;
 public class LottoModule : BaseCommandModule
 {
     private Dictionary<string, int> LottoBook;
+    public Random rand { get; set; }
     private readonly int ticketprice;
 
     public LottoModule()
@@ -83,5 +85,44 @@ public class LottoModule : BaseCommandModule
                     $"Your new balance is {econ.BalanceBook[callerstring]}");
             }
         }
+    }
+
+    [Command("draw")]
+    [RequireGuild]
+    [RequirePermissions(Permissions.Administrator)]
+    public async Task DrawLottoCommand(CommandContext ctx)
+    {
+        int reward = LottoBook["pot"];
+        Dictionary<string, double> chances = new();
+        int totaltickets = 0;
+        LottoBook.Remove("pot");
+        foreach (var entry in LottoBook) totaltickets += entry.Value;
+
+        try
+        {
+            foreach (var entry in LottoBook) chances.Add(entry.Key, (double) entry.Value / totaltickets);
+        }
+        catch (DivideByZeroException e)
+        {
+            await ctx.RespondAsync("Nobody is entered.");
+            return;
+        }
+
+        chances = chances.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
+        foreach (var entry in chances)
+            if (entry.Value > rand.NextDouble())
+            {
+                econ.BalanceBook[entry.Key] += reward;
+                ClearLottoBook();
+                await ctx.Channel.SendMessageAsync(
+                    $"{entry.Key.Split("/")[1]} has won the lottery, " +
+                    $"earning {reward} {econ.Currencyname}! Congrats!");
+                return;
+            }
+
+        //if nobody got picked above
+        ClearLottoBook();
+        LottoBook["pot"] = reward;
+        await ctx.Channel.SendMessageAsync($"Nobody won. The pot has remained at {reward}. Better luck next time!");
     }
 }

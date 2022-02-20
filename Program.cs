@@ -36,6 +36,7 @@ internal class Program
 
         ServiceProvider? services = new ServiceCollection()
             .AddSingleton<EconManager>()
+            .AddSingleton<Random>()
             .BuildServiceProvider();
 
         CommandsNextExtension? commands = discord.UseCommandsNext(new CommandsNextConfiguration
