@@ -103,6 +103,7 @@ public class EconModule : BaseCommandModule
         foreach (var entry in sorted)
         {
             result += $"{place}. {entry.Key.Split("/")[1]} with {entry.Value}\n";
+            place++;
         }
         
         var interactivity = ctx.Client.GetInteractivity();
