@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
+using Hitbot.Services;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -9,9 +10,10 @@ namespace Hitbot.Commands;
 
 public class EconModule : BaseCommandModule
 {
+    public EconManager econ { get; set; }
     public override Task AfterExecutionAsync(CommandContext ctx)
     {
-        WriteBalances();
+        econ.WriteBalances();
         return Task.Delay(0);
     }
 
@@ -19,13 +21,12 @@ public class EconModule : BaseCommandModule
     [Description("Add your name to the books and get a starting balance")]
     public async Task RegisterCommand(CommandContext ctx)
     {
-        BalanceBook ??= new Dictionary<string, int>();
         DiscordMember? caller = ctx.Member;
-        if (BalanceBook.ContainsKey(GetBalancebookString(caller)))
+        if (econ.BalanceBook.ContainsKey(econ.GetBalancebookString(caller)))
             await ctx.RespondAsync("You are already registered in this server.");
         else
         {
-            BalanceBook.Add(GetBalancebookString(caller), int.Parse(Program.config["startingamount"]));
+            econ.BalanceBook.Add(econ.GetBalancebookString(caller), econ.startingamount);
             await ctx.RespondAsync("Registered :)");
         }
     }
@@ -34,9 +35,9 @@ public class EconModule : BaseCommandModule
     [Description("Get your current balance.")]
     public async Task BalanceCommand(CommandContext ctx)
     {
-        if (BalanceBook.ContainsKey(GetBalancebookString(ctx.Member)))
+        if (econ.BalanceBook.ContainsKey(econ.GetBalancebookString(ctx.Member)))
             await ctx.RespondAsync(
-                $"Your balance is {BalanceBook[GetBalancebookString(ctx.Member)]} {Currencyname}.");
+                $"Your balance is {econ.BalanceBook[econ.GetBalancebookString(ctx.Member)]} {econ.Currencyname}.");
     }
 
     [Command("pay")]
@@ -50,29 +51,29 @@ public class EconModule : BaseCommandModule
             return;
         }
 
-        if (!BalanceBook.ContainsKey(GetBalancebookString(caller)))
+        if (!econ.BalanceBook.ContainsKey(econ.GetBalancebookString(caller)))
         {
             await ctx.RespondAsync("You aren't registered. Please do so with ~register.");
             return;
         }
 
-        if (!BalanceBook.ContainsKey(GetBalancebookString(recipient)))
+        if (!econ.BalanceBook.ContainsKey(econ.GetBalancebookString(recipient)))
         {
             await ctx.RespondAsync("Registering recipient...");
-            BalanceBook.Add(GetBalancebookString(recipient), int.Parse(Program.config["startingamount"]));
+            econ.BalanceBook.Add(econ.GetBalancebookString(recipient), econ.startingamount);
         }
 
-        if (BalanceBook[GetBalancebookString(caller)] < amount)
+        if (econ.BalanceBook[econ.GetBalancebookString(caller)] < amount)
         {
             await ctx.RespondAsync("Insufficient funds.");
             return;
         }
 
-        BalanceBook[GetBalancebookString(caller)] -= Math.Abs(amount);
-        BalanceBook[GetBalancebookString(recipient)] += Math.Abs(amount);
+        econ.BalanceBook[econ.GetBalancebookString(caller)] -= Math.Abs(amount);
+        econ.BalanceBook[econ.GetBalancebookString(recipient)] += Math.Abs(amount);
         await ctx.RespondAsync(
-            $"Paid {amount} {Currencyname} to {recipient.Nickname} (you now have {BalanceBook[GetBalancebookString(caller)]}, " +
-            $"they have {BalanceBook[GetBalancebookString(recipient)]})");
+            $"Paid {amount} {econ.Currencyname} to {recipient.Nickname} (you now have {econ.BalanceBook[econ.GetBalancebookString(caller)]}, " +
+            $"they have {econ.BalanceBook[econ.GetBalancebookString(recipient)]})");
     }
 
     //overload for backwards params
@@ -89,7 +90,7 @@ public class EconModule : BaseCommandModule
     [RequireOwner]
     public async Task PrintCommand(CommandContext ctx, DiscordMember recipient, int amount)
     {
-        BalanceBook[GetBalancebookString(recipient)] += amount;
+        econ.BalanceBook[econ.GetBalancebookString(recipient)] += amount;
         await ctx.RespondAsync($"{amount} new currency given to {recipient.Nickname}");
     }
 
@@ -97,7 +98,7 @@ public class EconModule : BaseCommandModule
     [Description("Display a list of registered users sorted by descending balance.")]
     public async Task LeaderboardCommand(CommandContext ctx)
     {
-        var sorted = from entry in BalanceBook orderby entry.Value descending select entry;
+        var sorted = from entry in econ.BalanceBook orderby entry.Value descending select entry;
         string result = "";
         int place = 1;
         foreach (var entry in sorted)
@@ -111,26 +112,9 @@ public class EconModule : BaseCommandModule
 
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
     }
+}
 
-    public static Dictionary<string, int> BalanceBook;
-    public static string Currencyname;
-
-    private static void WriteBalances()
-    {
-        // JsonConvert.DefaultSettings = () => new JsonSerializerSettings()
-        // {
-        //     TypeNameHandling = TypeNameHandling.All
-        // };
-        File.WriteAllText("balances.json", JsonConvert.SerializeObject(BalanceBook));
-    }
-
-    private static string GetBalancebookString(DiscordMember member)
-    {
-        return member.Id + "/" + member.Username + "#" + member.Discriminator;
-    }
-
-    private static string GetBalancebookId(DiscordMember member)
-    {
-        return GetBalancebookString(member).Split("/")[0];
-    }
+public class LottoModule : BaseCommandModule
+{
+    
 }

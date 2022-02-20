@@ -6,14 +6,14 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Commands;
+using Hitbot.Services;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
 namespace Hitbot;
 
 internal class Program
 {
-    public static Dictionary<string, string> config;
-
     private static void Main(string[] args)
     {
         MainAsync().GetAwaiter().GetResult();
@@ -23,18 +23,6 @@ internal class Program
     {
         //CONNECTIONS
         //read in json files
-        if (File.Exists("balances.json"))
-        {
-            EconModule.BalanceBook =
-                JsonConvert.DeserializeObject<Dictionary<string, int>>(await File.ReadAllTextAsync("balances.json"))!;
-        }
-
-        if (File.Exists("config.json"))
-        {
-            config = JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                await File.ReadAllTextAsync("config.json"))!;
-            EconModule.Currencyname = config["currencyname"];
-        }
 
         //initialize connection to discord
         var discord = new DiscordClient(new DiscordConfiguration
@@ -49,9 +37,14 @@ internal class Program
             Timeout = TimeSpan.FromSeconds(30)
         });
 
+        var services = new ServiceCollection()
+            .AddSingleton<EconManager>()
+            .BuildServiceProvider();
+
         var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
         {
-            StringPrefixes = new[] {"~"}
+            StringPrefixes = new[] {"~"},
+            Services = services
         });
         commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
