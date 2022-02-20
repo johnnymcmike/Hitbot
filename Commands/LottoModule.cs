@@ -106,6 +106,7 @@ public class LottoModule : BaseCommandModule
         }
 
         double rnum;
+        Console.WriteLine("Drawing lotto...");
         chances = chances.OrderBy(x => rand.Next()).ToDictionary(item => item.Key, item => item.Value);
         foreach (var entry in chances)
         {
