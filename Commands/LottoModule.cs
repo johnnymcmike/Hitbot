@@ -1,6 +1,8 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 using Newtonsoft.Json;
 
@@ -8,11 +10,13 @@ namespace Hitbot.Commands;
 
 [Group("lotto")]
 [Description("Lottery commands.")]
+[RequireGuild]
 public class LottoModule : BaseCommandModule
 {
     private Dictionary<string, int> LottoBook;
     public Random rand { get; set; }
-    private readonly int ticketprice;
+    private readonly int lottoTicketprice;
+    private readonly int lottoDrawprice;
 
     public LottoModule()
     {
@@ -25,7 +29,8 @@ public class LottoModule : BaseCommandModule
         {
             var config = JsonConvert.DeserializeObject<Dictionary<string, string>>(
                 File.ReadAllText("config.json"))!;
-            ticketprice = int.Parse(config["ticketprice"]);
+            lottoTicketprice = int.Parse(config["lottoticketprice"]);
+            lottoDrawprice = int.Parse(config["lottodrawprice"]);
         }
         else
         {
@@ -55,11 +60,14 @@ public class LottoModule : BaseCommandModule
     }
 
     [Command("buyticket")]
-    public async Task EnterLottoCommand(CommandContext ctx, int amount = 1)
+    [Description("Buy a lottery ticket for a preset fee. You are able to buy multiple.")]
+    public async Task EnterLottoCommand(CommandContext ctx,
+        [Description("Amount of tickets to buy. Defaults to 1.")]
+        int amount = 1)
     {
         DiscordMember? caller = ctx.Member;
         string callerstring = econ.GetBalancebookString(caller);
-        int totalcost = Math.Abs(amount * ticketprice);
+        int totalcost = Math.Abs(amount * lottoTicketprice);
         if (econ.BalanceBook[callerstring] < totalcost)
         {
             await ctx.RespondAsync("Insufficient funds.");
@@ -87,11 +95,18 @@ public class LottoModule : BaseCommandModule
     }
 
     [Command("draw")]
-    [RequireGuild]
-    [RequireOwner]
+    [Description(
+        "For a fee, draw the lottery. This either pays out the whole pot to one lucky winner, or nobody gets it and the pot is preserved.")]
     public async Task DrawLottoCommand(CommandContext ctx)
     {
-        int reward = LottoBook["pot"];
+        if (econ.BalanceBook[econ.GetBalancebookString(ctx.Member)] < lottoTicketprice)
+        {
+            await ctx.RespondAsync(
+                $"Insufficient funds to start a draw. Drawing costs {lottoDrawprice} {econ.Currencyname}.");
+            return;
+        }
+
+        int reward = LottoBook["pot"] + lottoDrawprice;
         Dictionary<string, double> chances = new();
         LottoBook.Remove("pot");
         int totaltickets = LottoBook.Sum(entry => entry.Value);
@@ -128,5 +143,24 @@ public class LottoModule : BaseCommandModule
         ClearLottoBook();
         LottoBook["pot"] = reward;
         await ctx.Channel.SendMessageAsync($"Nobody won. The pot has remained at {reward}. Better luck next time!");
+    }
+
+    [Command("view")]
+    [Description("Display all entered users and see the pot.")]
+    public async Task ViewLottoCommand(CommandContext ctx)
+    {
+        var sorted = from entry in LottoBook orderby entry.Value descending select entry;
+        string result = "";
+        result += $"The pot is {LottoBook["pot"]} {econ.Currencyname}.\n \n";
+        foreach (var entry in sorted)
+        {
+            if (entry.Key.Equals("pot")) continue;
+            result += $"{entry.Key.Split("/")[1]} has {entry.Value} tickets\n";
+        }
+
+        InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
+        var pages = interactivity.GeneratePagesInEmbed(result);
+
+        await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
     }
 }

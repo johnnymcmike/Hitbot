@@ -113,7 +113,7 @@ public class EconModule : BaseCommandModule
         int place = 1;
         foreach (var entry in sorted)
         {
-            result += $"{place}. {entry.Key.Split("/")[1]} with {entry.Value}\n";
+            result += $"{place}. {entry.Key.Split("/")[1]} with {entry.Value} {econ.Currencyname}\n";
             place++;
         }
 
