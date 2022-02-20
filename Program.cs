@@ -2,6 +2,9 @@
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Commands;
 using Newtonsoft.Json;
 
@@ -40,6 +43,12 @@ internal class Program
             TokenType = TokenType.Bot,
             Intents = DiscordIntents.AllUnprivileged
         });
+        discord.UseInteractivity(new InteractivityConfiguration() 
+        { 
+            PollBehaviour = PollBehaviour.KeepEmojis,
+            Timeout = TimeSpan.FromSeconds(30)
+        });
+
         var commands = discord.UseCommandsNext(new CommandsNextConfiguration()
         {
             StringPrefixes = new[] {"~"}

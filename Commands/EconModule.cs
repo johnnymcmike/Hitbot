@@ -1,6 +1,7 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -60,7 +61,7 @@ public class EconModule : BaseCommandModule
             await ctx.RespondAsync("Registering recipient...");
             BalanceBook.Add(GetBalancebookString(recipient), int.Parse(Program.config["startingamount"]));
         }
-        
+
         if (BalanceBook[GetBalancebookString(caller)] < amount)
         {
             await ctx.RespondAsync("Insufficient funds.");
@@ -90,6 +91,24 @@ public class EconModule : BaseCommandModule
     {
         BalanceBook[GetBalancebookString(recipient)] += amount;
         await ctx.RespondAsync($"{amount} new currency given to {recipient.Nickname}");
+    }
+
+    [Command("leaderboard")]
+    [Description("Display a list of registered users sorted by descending balance.")]
+    public async Task LeaderboardCommand(CommandContext ctx)
+    {
+        var sorted = from entry in BalanceBook orderby entry.Value descending select entry;
+        string result = "";
+        int place = 1;
+        foreach (var entry in sorted)
+        {
+            result += $"{place}. {entry.Key.Split("/")[1]} with {entry.Value}\n";
+        }
+        
+        var interactivity = ctx.Client.GetInteractivity();
+        var pages = interactivity.GeneratePagesInEmbed(result);
+
+        await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
     }
 
     public static Dictionary<string, int> BalanceBook;
