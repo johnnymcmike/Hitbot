@@ -34,17 +34,32 @@ public class EconModule : BaseCommandModule
     }
 
     [Command("balance")]
-    [Description("Get your current balance.")]
+    [Description("Gets your current balance.")]
     public async Task BalanceCommand(CommandContext ctx)
     {
         if (econ.BalanceBook.ContainsKey(econ.GetBalancebookString(ctx.Member)))
             await ctx.RespondAsync(
                 $"Your balance is {econ.BalanceBook[econ.GetBalancebookString(ctx.Member)]} {econ.Currencyname}.");
     }
+    //overload for getting someone elses balance
+    [Command("balance")]
+    [Description("Gets your current balance.")]
+    public async Task BalanceCommand(CommandContext ctx,
+        [Description("The person whose balance you want to see.")]
+        DiscordMember target)
+    {
+        if (econ.BalanceBook.ContainsKey(econ.GetBalancebookString(target)))
+            await ctx.RespondAsync(
+                $"{target.Nickname}'s balance is {econ.BalanceBook[econ.GetBalancebookString(target)]} {econ.Currencyname}.");
+    }
 
     [Command("pay")]
     [Description("Pay currency to another user.")]
-    public async Task PayCommand(CommandContext ctx, DiscordMember recipient, int amount)
+    public async Task PayCommand(CommandContext ctx,
+        [Description("The @ of the person you intend to pay (you do have to @ them)")]
+        DiscordMember recipient,
+        [Description("The amount to be paid. No decimals.")]
+        int amount)
     {
         DiscordMember? caller = ctx.Member;
         if (caller.Equals(recipient))
@@ -76,14 +91,6 @@ public class EconModule : BaseCommandModule
         await ctx.RespondAsync(
             $"Paid {amount} {econ.Currencyname} to {recipient.Nickname} (you now have {econ.BalanceBook[econ.GetBalancebookString(caller)]}, " +
             $"they have {econ.BalanceBook[econ.GetBalancebookString(recipient)]})");
-    }
-
-    //overload for backwards params
-    [Command("pay")]
-    [Description("Pay someone else a certain amount.")]
-    public async Task PayCommand(CommandContext ctx, int amount, DiscordMember recipient)
-    {
-        await PayCommand(ctx, recipient, amount);
     }
 
     [Command("print")]
