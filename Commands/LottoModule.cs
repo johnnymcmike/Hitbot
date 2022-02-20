@@ -43,7 +43,7 @@ public class LottoModule : BaseCommandModule
 
     private void WriteLottoBook()
     {
-        File.WriteAllText("balances.json", JsonConvert.SerializeObject(LottoBook));
+        File.WriteAllText("lotto.json", JsonConvert.SerializeObject(LottoBook));
     }
 
     private void ClearLottoBook()
@@ -69,7 +69,8 @@ public class LottoModule : BaseCommandModule
                 econ.BalanceBook[callerstring] -= totalcost;
                 LottoBook.Add(callerstring, amount);
                 LottoBook["pot"] += totalcost;
-                await ctx.RespondAsync($"You have signed up for the lottery with {amount} tickets.");
+                await ctx.RespondAsync($"You have signed up for the lottery with {amount} tickets. " +
+                                       $"Your new balance is {econ.BalanceBook[callerstring]}");
             }
             else
             {
@@ -77,7 +78,8 @@ public class LottoModule : BaseCommandModule
                 LottoBook[callerstring] += amount;
                 LottoBook["pot"] += totalcost;
                 await ctx.RespondAsync(
-                    $"You bought {amount} more lottery tickets, leaving you with {LottoBook[callerstring]}");
+                    $"You bought {amount} more lottery tickets, leaving you with {LottoBook[callerstring]}. " +
+                    $"Your new balance is {econ.BalanceBook[callerstring]}");
             }
         }
     }
