@@ -41,6 +41,7 @@ public class EconModule : BaseCommandModule
             await ctx.RespondAsync(
                 $"Your balance is {econ.BalanceBook[econ.GetBalancebookString(ctx.Member)]} {econ.Currencyname}.");
     }
+
     //overload for getting someone elses balance
     [Command("balance")]
     [Description("Gets your current balance.")]
@@ -121,8 +122,4 @@ public class EconModule : BaseCommandModule
 
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
     }
-}
-
-public class LottoModule : BaseCommandModule
-{
 }
