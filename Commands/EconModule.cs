@@ -68,8 +68,8 @@ public class EconModule : BaseCommandModule
             return;
         }
 
-        BalanceBook[GetBalancebookString(caller)] -= amount;
-        BalanceBook[GetBalancebookString(recipient)] += amount;
+        BalanceBook[GetBalancebookString(caller)] -= Math.Abs(amount);
+        BalanceBook[GetBalancebookString(recipient)] += Math.Abs(amount);
         await ctx.RespondAsync(
             $"Paid {amount} {Currencyname} to {recipient.Nickname} (you now have {BalanceBook[GetBalancebookString(caller)]}, " +
             $"they have {BalanceBook[GetBalancebookString(recipient)]})");
