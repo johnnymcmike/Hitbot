@@ -1,5 +1,4 @@
-﻿using DSharpPlus;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Hitbot.Services;
@@ -89,20 +88,18 @@ public class LottoModule : BaseCommandModule
 
     [Command("draw")]
     [RequireGuild]
-    [RequirePermissions(Permissions.Administrator)]
+    [RequireOwner]
     public async Task DrawLottoCommand(CommandContext ctx)
     {
         int reward = LottoBook["pot"];
         Dictionary<string, double> chances = new();
-        int totaltickets = 0;
         LottoBook.Remove("pot");
-        foreach (var entry in LottoBook) totaltickets += entry.Value;
-
+        int totaltickets = LottoBook.Sum(entry => entry.Value);
         try
         {
             foreach (var entry in LottoBook) chances.Add(entry.Key, (double) entry.Value / totaltickets);
         }
-        catch (DivideByZeroException e)
+        catch (DivideByZeroException)
         {
             await ctx.RespondAsync("Nobody is entered.");
             return;
