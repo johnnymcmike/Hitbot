@@ -50,6 +50,7 @@ public class LottoModule : BaseCommandModule
     {
         LottoBook = new Dictionary<string, int>();
         LottoBook.Add("pot", 0);
+        WriteLottoBook();
     }
 
     [Command("buyticket")]
