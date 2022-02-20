@@ -12,14 +12,10 @@ public class EconManager
     public EconManager()
     {
         if (File.Exists("balances.json"))
-        {
             BalanceBook =
                 JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText("balances.json"))!;
-        }
         else
-        {
             BalanceBook = new Dictionary<string, int>();
-        }
 
         if (File.Exists("config.json"))
         {

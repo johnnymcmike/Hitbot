@@ -1,16 +1,16 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
-using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Hitbot.Commands;
 
 public class EconModule : BaseCommandModule
 {
     public EconManager econ { get; set; }
+
     public override Task AfterExecutionAsync(CommandContext ctx)
     {
         econ.WriteBalances();
@@ -23,7 +23,9 @@ public class EconModule : BaseCommandModule
     {
         DiscordMember? caller = ctx.Member;
         if (econ.BalanceBook.ContainsKey(econ.GetBalancebookString(caller)))
+        {
             await ctx.RespondAsync("You are already registered in this server.");
+        }
         else
         {
             econ.BalanceBook.Add(econ.GetBalancebookString(caller), econ.startingamount);
@@ -44,7 +46,7 @@ public class EconModule : BaseCommandModule
     [Description("Pay currency to another user.")]
     public async Task PayCommand(CommandContext ctx, DiscordMember recipient, int amount)
     {
-        var caller = ctx.Member;
+        DiscordMember? caller = ctx.Member;
         if (caller.Equals(recipient))
         {
             await ctx.RespondAsync("You can't pay yourself!");
@@ -106,8 +108,8 @@ public class EconModule : BaseCommandModule
             result += $"{place}. {entry.Key.Split("/")[1]} with {entry.Value}\n";
             place++;
         }
-        
-        var interactivity = ctx.Client.GetInteractivity();
+
+        InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
         var pages = interactivity.GeneratePagesInEmbed(result);
 
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
@@ -116,5 +118,4 @@ public class EconModule : BaseCommandModule
 
 public class LottoModule : BaseCommandModule
 {
-    
 }
