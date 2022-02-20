@@ -16,7 +16,7 @@ public class LottoModule : BaseCommandModule
     public LottoModule()
     {
         if (File.Exists("lotto.json"))
-            LottoBook = JsonConvert.DeserializeObject<Dictionary<string, int>>("lotto.json")!;
+            LottoBook = JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText("lotto.json"))!;
         else
             ClearLottoBook();
 
