@@ -107,6 +107,8 @@ public class LottoModule : BaseCommandModule
         }
 
         int reward = LottoBook["pot"] + lottoDrawprice;
+        econ.BalanceBook[econ.GetBalancebookString(ctx.Member)] -= lottoDrawprice;
+
         Dictionary<string, double> chances = new();
         LottoBook.Remove("pot");
         int totaltickets = LottoBook.Sum(entry => entry.Value);

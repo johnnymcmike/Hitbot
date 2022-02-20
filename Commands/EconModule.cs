@@ -91,6 +91,7 @@ public class EconModule : BaseCommandModule
             econ.BalanceBook[callerString] -= amount;
             await ctx.Channel.SendMessageAsync(
                 $"You tried to pay a bot, so I put your {amount} kromer into the lottery pot. Lol.");
+            return;
         }
 
         if (!econ.BalanceBook.ContainsKey(recipientString))
