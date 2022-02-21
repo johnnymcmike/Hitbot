@@ -29,7 +29,7 @@ public class GamblingModule : BaseCommandModule
 
         var possibleemojis = new Dictionary<string, int>
         {
-            {":1kbtroll:", -20},
+            {":1kbtroll:", 1},
             {":cherries:", 30},
             {":seven:", 100},
             {":fish:", 40},
