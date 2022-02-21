@@ -6,6 +6,7 @@ using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 
 namespace Hitbot;
 
@@ -34,8 +35,9 @@ internal class Program
             Timeout = TimeSpan.FromSeconds(30)
         });
 
+        ConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         ServiceProvider? services = new ServiceCollection()
-            .AddSingleton<EconManager>()
+            .AddSingleton(new EconManager(redis))
             .AddSingleton<Random>()
             .BuildServiceProvider();
 
@@ -45,11 +47,6 @@ internal class Program
             Services = services
         });
         commands.RegisterCommands(Assembly.GetExecutingAssembly());
-
-        //initialize connection to redis
-        // redis = await ConnectionMultiplexer.ConnectAsync("localhost");
-        // IDatabase db = redis.GetDatabase();
-
 
         await discord.ConnectAsync();
         await Task.Delay(-1);
