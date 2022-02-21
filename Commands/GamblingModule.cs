@@ -23,22 +23,24 @@ public class GamblingModule : BaseCommandModule
 
         var possibleemojis = new Dictionary<string, int>
         {
-            {":1kbtroll:", 200},
-            {":cherries:", 300},
-            {":seven:", 400},
-            {":fish:", 100},
-            {":cowredeyes:", 100},
-            {":it:", 50}
+            {":1kbtroll:", -20},
+            {":cherries:", 30},
+            {":seven:", 100},
+            {":fish:", 40},
+            {":cowredeyes:", 20},
+            {":it:", 15}
         };
-        DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Time to spin!");
-        string currentemoji;
+        string slotresultstr = "Time to spin! ";
+        DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync(slotresultstr);
+
         string[] results = new string[3];
         for (int i = 0; i < 3; i++)
         {
             string choice = possibleemojis.Keys.ToArray()[rand.Next(possibleemojis.Count)];
             results[i] = choice;
             await Task.Delay(i * 1000);
-            await slotmsg.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, choice));
+            slotresultstr += DiscordEmoji.FromName(ctx.Client, choice);
+            await slotmsg.ModifyAsync("");
         }
 
         foreach (string emoji in possibleemojis.Keys)
