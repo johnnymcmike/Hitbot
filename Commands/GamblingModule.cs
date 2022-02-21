@@ -45,8 +45,8 @@ public class GamblingModule : BaseCommandModule
             string choice = possibleemojis.Keys.ToArray()[rand.Next(possibleemojis.Count)];
             results[i] = choice;
             await Task.Delay(i * 1000);
-            slotresultstr += DiscordEmoji.FromName(ctx.Client, choice);
-            await slotmsg.ModifyAsync("");
+            slotresultstr += DiscordEmoji.FromName(ctx.Client, choice).ToString();
+            await slotmsg.ModifyAsync(slotresultstr);
         }
 
         foreach (string emoji in possibleemojis.Keys)
