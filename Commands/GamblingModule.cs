@@ -11,6 +11,12 @@ public class GamblingModule : BaseCommandModule
     public Random rand { get; set; }
 
     [Command("slots")]
+    public override Task AfterExecutionAsync(CommandContext ctx)
+    {
+        econ.WriteBalances();
+        return Task.Delay(0);
+    }
+
     public async Task SlotMachine(CommandContext ctx)
     {
         DiscordMember? caller = ctx.Member;
