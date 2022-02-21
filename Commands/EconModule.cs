@@ -1,6 +1,8 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 
 namespace Hitbot.Commands;
@@ -126,15 +128,20 @@ public class EconModule : BaseCommandModule
     [Description("Display a list of registered users sorted by descending balance.")]
     public async Task LeaderboardCommand(CommandContext ctx)
     {
-        var wa = econ.DotnetDictFromRedisHash("balances");
-        foreach (var VARIABLE in wa)
+        var dict = econ.DotnetDictFromRedisHash("balances");
+        dict.Remove("bucket");
+        var sorted = from entry in dict orderby entry.Value descending select entry;
+        string result = "";
+        int place = 1;
+        foreach (var entry in sorted)
         {
-            Console.WriteLine($"{VARIABLE.Key}, {VARIABLE.Value}");
+            result += $"{place}. {entry.Key.Split("/")[1]} with {entry.Value} {econ.Currencyname}\n";
+            place++;
         }
-        // string result = "";
-        // InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
-        // var pages = interactivity.GeneratePagesInEmbed(result);
-        //
-        // await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
+
+        InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
+        var pages = interactivity.GeneratePagesInEmbed(result);
+
+        await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
     }
 }
