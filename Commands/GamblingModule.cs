@@ -34,7 +34,7 @@ public class GamblingModule : BaseCommandModule
         {
             {":1kbtroll:", -20},
             {":cherries:", 30},
-            {":seven:", 100},
+            {":seven:", 50},
             {":fish:", 40},
             {":cowredeyes:", 20},
             {":it:", 15}
