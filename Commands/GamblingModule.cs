@@ -36,8 +36,8 @@ public class GamblingModule : BaseCommandModule
             {":cowredeyes:", 20},
             {":it:", 15}
         };
-        string slotresultstr = "Time to spin! ";
-        DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync(slotresultstr);
+        string slotresultstr = " ";
+        DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
         await Task.Delay(2000);
 
         string[] results = new string[3];
