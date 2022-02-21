@@ -128,7 +128,7 @@ public class EconModule : BaseCommandModule
     [Description("Display a list of registered users sorted by descending balance.")]
     public async Task LeaderboardCommand(CommandContext ctx)
     {
-        var dict = econ.DotnetDictFromRedisHash("balances");
+        var dict = econ.BalanceBookAsDotnetDict();
         dict.Remove("bucket");
         var sorted = from entry in dict orderby entry.Value descending select entry;
         string result = "";

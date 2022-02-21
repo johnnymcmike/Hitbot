@@ -46,9 +46,9 @@ public class EconManager
         return member.Id + "/" + member.Username + "#" + member.Discriminator;
     }
 
-    public Dictionary<string, int> DotnetDictFromRedisHash(string rediskey)
+    public Dictionary<string, int> BalanceBookAsDotnetDict()
     {
-        return db.HashGetAll(rediskey).ToStringDictionary()
+        return db.HashGetAll("balancebook").ToStringDictionary()
             .ToDictionary(item => item.Key, item => int.Parse(item.Value));
     }
 
