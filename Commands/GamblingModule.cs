@@ -22,17 +22,17 @@ public class GamblingModule : BaseCommandModule
     {
         DiscordMember? caller = ctx.Member;
         string callerString = econ.GetBalancebookString(caller);
-        if (!econ.BalanceBook.ContainsKey(callerString) || econ.BalanceBook[callerString] < 3)
+        if (!econ.BalanceBook.ContainsKey(callerString) || econ.BalanceBook[callerString] < 2)
         {
             await ctx.Channel.SendMessageAsync("Insufficient funds.");
             return;
         }
 
-        econ.BalanceBook[callerString] -= 3;
+        econ.BalanceBook[callerString] -= 2;
 
         var possibleemojis = new Dictionary<string, int>
         {
-            {":1kbtroll:", -20},
+            {":1kbtroll:", -30},
             {":cherries:", 30},
             {":seven:", 50},
             {":fish:", 40},
@@ -57,7 +57,7 @@ public class GamblingModule : BaseCommandModule
         {
             if (results.Count(x => x == emoji) == 2)
             {
-                int reward = possibleemojis[emoji] / 2;
+                int reward = possibleemojis[emoji] / 3;
                 econ.BalanceBook[callerString] += reward;
                 await ctx.Channel.SendMessageAsync($"Two {emoji}s! You win {reward} {econ.Currencyname}! Yippee!");
                 return;
