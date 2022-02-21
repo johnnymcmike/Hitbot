@@ -32,7 +32,7 @@ public class GamblingModule : BaseCommandModule
 
         var possibleemojis = new Dictionary<string, int>
         {
-            {":1kbtroll:", -30},
+            {":1kbtroll:", -50},
             {":cherries:", 30},
             {":seven:", 50},
             {":fish:", 40},
@@ -59,7 +59,7 @@ public class GamblingModule : BaseCommandModule
             {
                 int reward = possibleemojis[emoji] / 3;
                 econ.BalanceBook[callerString] += reward;
-                await ctx.Channel.SendMessageAsync($"Two {emoji}s! You win {reward} {econ.Currencyname}! Yippee!");
+                await ctx.RespondAsync($"Two {emoji}s! You win {reward} {econ.Currencyname}! Yippee!");
                 return;
             }
 
@@ -67,7 +67,7 @@ public class GamblingModule : BaseCommandModule
             {
                 int reward = possibleemojis[emoji];
                 econ.BalanceBook[callerString] += reward;
-                await ctx.Channel.SendMessageAsync(
+                await ctx.RespondAsync(
                     $"THREE {emoji}s! that's a JACKBOT baybee! {reward} {econ.Currencyname}!!!");
                 return;
             }
