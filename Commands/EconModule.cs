@@ -155,7 +155,7 @@ public class EconModule : BaseCommandModule
         if (!Daily.DailyExists(callerString, "dailykromer"))
         {
             Econ.BookIncr(callerString, 10); //TODO: dont hardcode this
-            Daily.TriggerDaily(callerString, "dailykromer");
+            Daily.SetDaily(callerString, "dailykromer");
             await ctx.RespondAsync($"Enjoy your 10 {Econ.Currencyname}!");
         }
         else

@@ -11,11 +11,15 @@ public class DailyFlagManager
         db = redis.GetDatabase();
     }
 
-    public void TriggerDaily(string user, string reason)
+    public void SetDaily(string user, string reason, string data = "lol")
     {
         TimeSpan untilmidnight = DateTime.Today.AddDays(1.0) - DateTime.Now;
-        db.HashSet($"dailies{user}", "Wa", 1);
-        db.StringSet($"dailies:{reason}:{user}", 1, untilmidnight);
+        db.StringSet($"dailies:{reason}:{user}", data, untilmidnight);
+    }
+
+    public string GetDaily(string user, string reason)
+    {
+        return db.StringGet($"dailies:{reason}:{user}");
     }
 
     public bool DailyExists(string user, string reason)
