@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using Hitbot.Services;
 using StackExchange.Redis;
 
@@ -22,8 +23,16 @@ public class ConspiracyModule : BaseCommandModule
     }
 
     [Command("hit")]
-    public async Task HitCommand(CommandContext ctx, string tag)
+    public async Task HitCommand(CommandContext ctx, ulong tag)
     {
-        await ctx.Message.DeleteAsync();
+        DiscordMember? caller = ctx.Member;
+        var mems = ctx.Guild.Members;
+        if (!mems.ContainsKey(tag))
+        {
+            await ctx.RespondAsync("Not a valid ID in this server. Try again.");
+            return;
+        }
+
+        DiscordMember? target = mems[tag];
     }
 }

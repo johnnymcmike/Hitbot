@@ -13,7 +13,9 @@ public class DailyFlagManager
 
     public void TriggerDaily(string user, string reason)
     {
-        db.StringSet($"dailies:{reason}:{user}", 1, TimeSpan.FromDays(1));
+        TimeSpan untilmidnight = DateTime.Today.AddDays(1.0) - DateTime.Now;
+        db.HashSet($"dailies{user}", "Wa", 1);
+        db.StringSet($"dailies:{reason}:{user}", 1, untilmidnight);
     }
 
     public bool DailyExists(string user, string reason)
