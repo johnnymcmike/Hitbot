@@ -29,42 +29,45 @@ public class GamblingModule : BaseCommandModule
 
         econ.BookDecr(callerString, 4);
 
-        var possibleemojis = new Dictionary<string, int>
+        var emojidefs = new List<KeyValuePair<string, int>>
         {
-            {":1kbtroll:", -500},
-            {":seven:", 300},
-            {":cherries:", 25},
-            {":cherries:", 25},
-            {":fish:", 20},
-            {":fish:", 20},
-            {":bigshot:", 20},
-            {":bigshot:", 20},
-            {":cowredeyes:", 10},
-            {":cowredeyes:", 10},
-            {":cowredeyes:", 10},
-            {":it:", 15},
-            {":it:", 15},
-            {":it:", 15}
+            new(":1kbtroll:", -420),
+            new(":seven:", 300),
+            new(":cherries:", 15),
+            new(":cherries:", 15),
+            new(":fish:", 20),
+            new(":fish:", 20),
+            new(":bigshot:", 15),
+            new(":bigshot:", 15),
+            new(":cowredeyes:", 10),
+            new(":cowredeyes:", 10),
+            new(":cowredeyes:", 10),
+            new(":it:", 5),
+            new(":it:", 5),
+            new(":it:", 5)
         };
         string slotresultstr = " ";
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
         await Task.Delay(2000);
 
+        string[] possemo = emojidefs.Select(VARIABLE => VARIABLE.Key).ToArray();
+
         string[] results = new string[3];
         for (int i = 0; i < 3; i++)
         {
-            string choice = possibleemojis.Keys.ToArray()[rand.Next(possibleemojis.Count)];
+            string choice = possemo[rand.Next(emojidefs.Count)];
             results[i] = choice;
             await Task.Delay(i * 1000);
             slotresultstr += DiscordEmoji.FromName(ctx.Client, choice).ToString();
             await slotmsg.ModifyAsync(slotresultstr);
         }
 
-        foreach (string emoji in possibleemojis.Keys)
+        for (int i = 0; i < possemo.Length; i++)
         {
+            string emoji = possemo[i];
             if (results.Count(x => x == emoji) == 2)
             {
-                int reward = possibleemojis[emoji] / 3;
+                int reward = emojidefs[i].Value / 3;
                 econ.BookIncr(callerString, reward);
                 await ctx.RespondAsync($"Two {emoji}s! You win {reward} {econ.Currencyname}! Yippee!");
                 return;
@@ -72,7 +75,7 @@ public class GamblingModule : BaseCommandModule
 
             if (results.Count(x => x == emoji) == 3)
             {
-                int reward = possibleemojis[emoji];
+                int reward = emojidefs[i].Value;
                 econ.BookIncr(callerString, reward);
                 await ctx.RespondAsync(
                     $"THREE {emoji}s! that's a JACKBOT baybee! {reward} {econ.Currencyname}!!!");
