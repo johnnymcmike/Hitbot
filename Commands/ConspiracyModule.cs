@@ -8,7 +8,7 @@ namespace Hitbot.Commands;
 [Group("conspiracy")]
 [Description("Commands for social deduction game.")]
 [RequireGuild]
-public class ConspiracyModule
+public class ConspiracyModule : BaseCommandModule
 {
     private EconManager Econ { get; }
     private DailyFlagManager Dailies { get; }
