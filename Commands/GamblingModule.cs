@@ -31,11 +31,19 @@ public class GamblingModule : BaseCommandModule
 
         var possibleemojis = new Dictionary<string, int>
         {
-            {":1kbtroll:", -50},
-            {":cherries:", 30},
-            {":seven:", 50},
-            {":fish:", 40},
-            {":cowredeyes:", 20},
+            {":1kbtroll:", -500},
+            {":seven:", 300},
+            {":cherries:", 25},
+            {":cherries:", 25},
+            {":fish:", 20},
+            {":fish:", 20},
+            {":bigshot:", 20},
+            {":bigshot:", 20},
+            {":cowredeyes:", 10},
+            {":cowredeyes:", 10},
+            {":cowredeyes:", 10},
+            {":it:", 15},
+            {":it:", 15},
             {":it:", 15}
         };
         string slotresultstr = " ";
