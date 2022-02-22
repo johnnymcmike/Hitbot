@@ -41,6 +41,7 @@ internal class Program
             .AddSingleton(new EconManager(redis))
             .AddSingleton(new GamesManager(redis))
             .AddSingleton(new DailyFlagManager(redis))
+            .AddSingleton(redis)
             .AddSingleton<Random>()
             .BuildServiceProvider();
 

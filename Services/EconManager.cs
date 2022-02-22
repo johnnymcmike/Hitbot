@@ -37,32 +37,32 @@ public class EconManager : IBookKeeper
             .ToDictionary(item => item.Key, item => int.Parse(item.Value));
     }
 
-    public bool BookHasKey(string key)
+    public override bool BookHasKey(string key)
     {
         return db.HashExists(BookKey, key);
     }
 
-    public void BookClear()
+    public override void BookClear()
     {
         throw new NotImplementedException();
     }
 
-    public void BookSet(string key, int amount)
+    public override void BookSet(string key, int amount)
     {
         db.HashSet(BookKey, key, amount);
     }
 
-    public int BookGet(string key)
+    public override int BookGet(string key)
     {
         return (int) db.HashGet(BookKey, key);
     }
 
-    public void BookDecr(string key, int by = 1)
+    public override void BookDecr(string key, int by = 1)
     {
         db.HashDecrement(BookKey, key, by);
     }
 
-    public void BookIncr(string key, int by = 1)
+    public override void BookIncr(string key, int by = 1)
     {
         db.HashIncrement(BookKey, key, by);
     }

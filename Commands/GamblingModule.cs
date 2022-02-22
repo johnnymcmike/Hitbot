@@ -7,8 +7,8 @@ namespace Hitbot.Commands;
 
 public class GamblingModule : BaseCommandModule
 {
-    public EconManager econ { get; set; }
-    public Random rand { get; set; }
+    private EconManager econ { get; }
+    private Random rand { get; }
 
     public GamblingModule(EconManager eco, Random rng)
     {

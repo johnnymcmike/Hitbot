@@ -1,11 +1,11 @@
 ﻿namespace Hitbot;
 
-public interface IBookKeeper
+public abstract class IBookKeeper
 {
-    void BookSet(string key, int num);
-    int BookGet(string key);
-    void BookIncr(string key, int by = 1);
-    void BookDecr(string key, int by = 1);
-    bool BookHasKey(string key);
-    void BookClear();
+    public abstract void BookSet(string key, int num);
+    public abstract int BookGet(string key);
+    public abstract void BookIncr(string key, int by = 1);
+    public abstract void BookDecr(string key, int by = 1);
+    public abstract bool BookHasKey(string key);
+    public abstract void BookClear();
 }
