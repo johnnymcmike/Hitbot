@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
-public class EconManager
+public class EconManager : IBookKeeper
 {
     public readonly string Currencyname;
     private readonly IDatabase db;
@@ -40,6 +40,11 @@ public class EconManager
     public bool BookHasKey(string key)
     {
         return db.HashExists(bookKey, key);
+    }
+
+    public void BookClear()
+    {
+        throw new NotImplementedException();
     }
 
     public void BookSet(string key, int amount)
