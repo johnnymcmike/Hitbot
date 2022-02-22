@@ -11,6 +11,11 @@ public class EconModule : BaseCommandModule
 {
     public EconManager econ { get; set; }
 
+    public EconModule(EconManager eco)
+    {
+        econ = eco;
+    }
+
     [Command("register")]
     [Description("Add your name to the books and get a starting balance")]
     public async Task RegisterCommand(CommandContext ctx)
