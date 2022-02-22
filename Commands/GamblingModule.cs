@@ -1,6 +1,8 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 
 namespace Hitbot.Commands;
@@ -82,5 +84,39 @@ public class GamblingModule : BaseCommandModule
                 return;
             }
         }
+    }
+
+    [Command("duel")]
+    public async Task DuelCommand(CommandContext ctx, DiscordMember target)
+    {
+        InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
+        DiscordMember? caller = ctx.Member;
+        DiscordEmoji? triumph = DiscordEmoji.FromName(ctx.Client, ":triumph:");
+
+        DiscordMessage? firstmsg =
+            await ctx.Channel.SendMessageAsync($"Time for a duel! {target.Nickname}, react with {triumph} to accept!");
+        await firstmsg.CreateReactionAsync(triumph);
+        var result = await firstmsg.WaitForReactionAsync(target, triumph);
+
+        if (result.TimedOut)
+        {
+            await ctx.RespondAsync("Timed out.");
+            return;
+        }
+
+        int[] rnums = new int[3];
+        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 5);
+        await ctx.Channel.SendMessageAsync("First one to say \"SHOOT\" verbatim after I say \"GO\" wins.");
+        await ctx.Channel.SendMessageAsync("Three...");
+        await Task.Delay(rnums[0] * 1000);
+        await ctx.Channel.SendMessageAsync("Two...");
+        await Task.Delay(rnums[1] * 1000);
+        await ctx.Channel.SendMessageAsync("One...");
+        await Task.Delay(rnums[2] * 1000);
+        await ctx.Channel.SendMessageAsync("GO");
+
+        await interactivity.WaitForMessageAsync(x =>
+            x.Channel.Id == ctx.Channel.Id && x.Author.Id == caller.Id || x.Author.Id == target.Id);
+        await ctx.Channel.SendMessageAsync("somebody won but i cant be bothered to figure it out");
     }
 }
