@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
-public class GamblingManager : IBookKeeper
+public class GamblingManager // : IBookKeeper
 {
     private readonly IDatabase db;
     public readonly int lottoDrawprice;
