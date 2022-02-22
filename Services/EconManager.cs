@@ -8,13 +8,13 @@ public class EconManager : IBookKeeper
     public readonly string Currencyname;
     private readonly IDatabase db;
     public readonly int Startingamount;
-    private const string bookKey = "balances";
+    private const string BookKey = "balances";
 
     public EconManager(ConnectionMultiplexer redisConnection)
     {
         db = redisConnection.GetDatabase();
-        if (!db.KeyExists(bookKey))
-            db.HashSet(bookKey, "bucket", 0);
+        if (!db.KeyExists(BookKey))
+            db.HashSet(BookKey, "bucket", 0);
 
         // BalanceBook = DotnetDictFromRedisHash(book1);
 
@@ -33,13 +33,13 @@ public class EconManager : IBookKeeper
 
     public Dictionary<string, int> BookAsDotnetDict()
     {
-        return db.HashGetAll(bookKey).ToStringDictionary()
+        return db.HashGetAll(BookKey).ToStringDictionary()
             .ToDictionary(item => item.Key, item => int.Parse(item.Value));
     }
 
     public bool BookHasKey(string key)
     {
-        return db.HashExists(bookKey, key);
+        return db.HashExists(BookKey, key);
     }
 
     public void BookClear()
@@ -49,21 +49,21 @@ public class EconManager : IBookKeeper
 
     public void BookSet(string key, int amount)
     {
-        db.HashSet(bookKey, key, amount);
+        db.HashSet(BookKey, key, amount);
     }
 
     public int BookGet(string key)
     {
-        return (int) db.HashGet(bookKey, key);
+        return (int) db.HashGet(BookKey, key);
     }
 
     public void BookDecr(string key, int by = 1)
     {
-        db.HashDecrement(bookKey, key, by);
+        db.HashDecrement(BookKey, key, by);
     }
 
     public void BookIncr(string key, int by = 1)
     {
-        db.HashIncrement(bookKey, key, by);
+        db.HashIncrement(BookKey, key, by);
     }
 }

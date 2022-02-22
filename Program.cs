@@ -13,7 +13,7 @@ namespace Hitbot;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static void Main()
     {
         MainAsync().GetAwaiter().GetResult();
     }

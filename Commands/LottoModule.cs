@@ -15,19 +15,21 @@ public class LottoModule : BaseCommandModule
     private readonly int drawp;
 
     private readonly int ticketp;
-    public GamesManager Game { get; set; }
+    private GamesManager Games { get; }
 
-    public EconManager econ { get; set; }
-
-    public LottoModule(GamesManager game, EconManager eco)
-    {
-        Game = game;
-        econ = eco;
-        ticketp = Game.lottoTicketprice;
-        drawp = Game.lottoDrawprice;
-    }
+    private EconManager Econ { get; }
 
     public Random Rand { get; set; }
+
+    public LottoModule(GamesManager games, EconManager eco, Random rng)
+    {
+        Games = games;
+        Econ = eco;
+        Rand = rng;
+        ticketp = Games.LottoTicketprice;
+        drawp = Games.LottoDrawprice;
+    }
+
 
     [Command("buyticket")]
     [Description("Buy a lottery ticket for a preset fee. You are able to buy multiple.")]
@@ -38,17 +40,17 @@ public class LottoModule : BaseCommandModule
         DiscordMember? caller = ctx.Member;
         string callerstring = Program.GetBalancebookString(caller);
         int totalcost = Math.Abs(numtickets * ticketp);
-        if (econ.BookGet(callerstring) < totalcost)
+        if (Econ.BookGet(callerstring) < totalcost)
         {
             await ctx.RespondAsync("Insufficient funds.");
         }
         else
         {
-            econ.BookDecr(callerstring, totalcost);
-            Game.BookIncr(callerstring, numtickets);
-            Game.BookIncr("pot", totalcost);
+            Econ.BookDecr(callerstring, totalcost);
+            Games.BookIncr(callerstring, numtickets);
+            Games.BookIncr("pot", totalcost);
             await ctx.RespondAsync($"You have signed up for the lottery with {numtickets} tickets. " +
-                                   $"Your new balance is {econ.BookGet(callerstring)}");
+                                   $"Your new balance is {Econ.BookGet(callerstring)}");
         }
     }
 
@@ -57,18 +59,18 @@ public class LottoModule : BaseCommandModule
         "For a fee, draw the lottery. This either pays out the whole pot to one lucky winner, or nobody gets it and the pot is preserved.")]
     public async Task DrawLottoCommand(CommandContext ctx)
     {
-        if (econ.BookGet(Program.GetBalancebookString(ctx.Member)) < ticketp)
+        if (Econ.BookGet(Program.GetBalancebookString(ctx.Member)) < ticketp)
         {
             await ctx.RespondAsync(
-                $"Insufficient funds to start a draw. Drawing costs {drawp} {econ.Currencyname}.");
+                $"Insufficient funds to start a draw. Drawing costs {drawp} {Econ.Currencyname}.");
             return;
         }
 
-        int reward = Game.BookGet("pot") + drawp;
-        econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
+        int reward = Games.BookGet("pot") + drawp;
+        Econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
 
         Dictionary<string, double> chances = new();
-        var lottoDict = Game.BookAsDotnetDict();
+        var lottoDict = Games.BookAsDotnetDict();
         lottoDict.Remove("pot");
         int totaltickets = lottoDict.Sum(entry => entry.Value);
         try
@@ -83,26 +85,26 @@ public class LottoModule : BaseCommandModule
 
         double rnum;
         Console.WriteLine("Drawing lotto...");
-        chances = chances.OrderBy(x => Rand.Next()).ToDictionary(item => item.Key, item => item.Value);
+        chances = chances.OrderBy(_ => Rand.Next()).ToDictionary(item => item.Key, item => item.Value);
         foreach (var entry in chances)
         {
             rnum = Rand.NextDouble();
             Console.WriteLine($"{entry.Key.Split("/")[1]}'s chances value is {entry.Value} and random is {rnum}");
             if (entry.Value > rnum)
             {
-                econ.BookIncr(entry.Key, reward);
-                Game.BookClear();
+                Econ.BookIncr(entry.Key, reward);
+                Games.BookClear();
                 await ctx.Channel.SendMessageAsync(
                     $"{entry.Key.Split("/")[1]} has won the lottery, " +
-                    $"earning {reward} {econ.Currencyname}! Congrats!");
+                    $"earning {reward} {Econ.Currencyname}! Congrats!");
                 return;
             }
         }
 
 
         //if nobody got picked above
-        Game.BookClear();
-        Game.BookSet("pot", reward);
+        Games.BookClear();
+        Games.BookSet("pot", reward);
         await ctx.Channel.SendMessageAsync($"Nobody won. The pot has remained at {reward}. Better luck next time!");
     }
 
@@ -110,10 +112,10 @@ public class LottoModule : BaseCommandModule
     [Description("Display all entered users and see the pot.")]
     public async Task ViewLottoCommand(CommandContext ctx)
     {
-        var lottoDict = Game.BookAsDotnetDict();
+        var lottoDict = Games.BookAsDotnetDict();
         var sorted = from entry in lottoDict orderby entry.Value descending select entry;
         string result = "";
-        result += $"The pot is {lottoDict["pot"]} {econ.Currencyname}.\n \n";
+        result += $"The pot is {lottoDict["pot"]} {Econ.Currencyname}.\n \n";
         foreach (var entry in sorted)
         {
             if (entry.Key.Equals("pot")) continue;
