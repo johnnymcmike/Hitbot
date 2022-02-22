@@ -21,13 +21,13 @@ public class GamblingModule : BaseCommandModule
     {
         DiscordMember? caller = ctx.Member;
         string callerString = Program.GetBalancebookString(caller);
-        if (!econ.BookHasKey(callerString) || econ.BookGet(callerString) < 4)
+        if (!econ.BookHasKey(callerString) || econ.BookGet(callerString) < 1)
         {
             await ctx.Channel.SendMessageAsync("Insufficient funds.");
             return;
         }
 
-        econ.BookDecr(callerString, 4);
+        econ.BookDecr(callerString);
 
         var emojidefs = new List<KeyValuePair<string, int>>
         {
