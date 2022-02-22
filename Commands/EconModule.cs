@@ -10,10 +10,12 @@ namespace Hitbot.Commands;
 public class EconModule : BaseCommandModule
 {
     private EconManager Econ { get; }
+    private DailyFlagManager Daily { get; }
 
-    public EconModule(EconManager eco)
+    public EconModule(EconManager eco, DailyFlagManager dail)
     {
         Econ = eco;
+        Daily = dail;
     }
 
     [Command("register")]
@@ -142,5 +144,23 @@ public class EconModule : BaseCommandModule
         var pages = interactivity.GeneratePagesInEmbed(result);
 
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
+    }
+
+    [Command("claimdaily")]
+    [Description("Claim your daily amount of currency allowed.")]
+    public async Task ClaimDailyCommand(CommandContext ctx)
+    {
+        DiscordMember? caller = ctx.Member;
+        string callerString = Program.GetBalancebookString(caller);
+        if (!Daily.DailyExists(callerString, "dailykromer"))
+        {
+            Econ.BookIncr(callerString, 10); //TODO: dont hardcode this
+            Daily.TriggerDaily(callerString, "dailykromer");
+            await ctx.RespondAsync($"Enjoy your 10 {Econ.Currencyname}!");
+        }
+        else
+        {
+            await ctx.RespondAsync("You have already claimed this today.");
+        }
     }
 }

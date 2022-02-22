@@ -50,7 +50,7 @@ public class GamblingModule : BaseCommandModule
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
         await Task.Delay(2000);
 
-        string[] possemo = emojidefs.Select(VARIABLE => VARIABLE.Key).ToArray();
+        string[] possemo = emojidefs.Select(variable => variable.Key).ToArray();
 
         string[] results = new string[3];
         for (int i = 0; i < 3; i++)
