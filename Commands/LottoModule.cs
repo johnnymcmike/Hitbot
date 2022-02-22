@@ -15,17 +15,17 @@ public class LottoModule : BaseCommandModule
     private readonly int drawp;
 
     private readonly int ticketp;
+    public GamesManager Game { get; set; }
+
+    public EconManager econ { get; set; }
 
     public LottoModule()
     {
-        ticketp = Gamb.lottoTicketprice;
-        drawp = Gamb.lottoDrawprice;
+        ticketp = Game.lottoTicketprice;
+        drawp = Game.lottoDrawprice;
     }
 
     public Random Rand { get; set; }
-    public GamblingManager Gamb { get; set; }
-
-    public EconManager econ { get; set; }
 
     [Command("buyticket")]
     [Description("Buy a lottery ticket for a preset fee. You are able to buy multiple.")]
@@ -43,8 +43,8 @@ public class LottoModule : BaseCommandModule
         else
         {
             econ.BookDecr(callerstring, totalcost);
-            Gamb.BookIncr(callerstring, numtickets);
-            Gamb.BookIncr("pot", totalcost);
+            Game.BookIncr(callerstring, numtickets);
+            Game.BookIncr("pot", totalcost);
             await ctx.RespondAsync($"You have signed up for the lottery with {numtickets} tickets. " +
                                    $"Your new balance is {econ.BookGet(callerstring)}");
         }
@@ -62,11 +62,11 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
-        int reward = Gamb.BookGet("pot") + drawp;
+        int reward = Game.BookGet("pot") + drawp;
         econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
 
         Dictionary<string, double> chances = new();
-        var lottoDict = Gamb.BookAsDotnetDict();
+        var lottoDict = Game.BookAsDotnetDict();
         lottoDict.Remove("pot");
         int totaltickets = lottoDict.Sum(entry => entry.Value);
         try
@@ -89,7 +89,7 @@ public class LottoModule : BaseCommandModule
             if (entry.Value > rnum)
             {
                 econ.BookIncr(entry.Key, reward);
-                Gamb.BookClear();
+                Game.BookClear();
                 await ctx.Channel.SendMessageAsync(
                     $"{entry.Key.Split("/")[1]} has won the lottery, " +
                     $"earning {reward} {econ.Currencyname}! Congrats!");
@@ -99,8 +99,8 @@ public class LottoModule : BaseCommandModule
 
 
         //if nobody got picked above
-        Gamb.BookClear();
-        Gamb.BookSet("pot", reward);
+        Game.BookClear();
+        Game.BookSet("pot", reward);
         await ctx.Channel.SendMessageAsync($"Nobody won. The pot has remained at {reward}. Better luck next time!");
     }
 
@@ -108,7 +108,7 @@ public class LottoModule : BaseCommandModule
     [Description("Display all entered users and see the pot.")]
     public async Task ViewLottoCommand(CommandContext ctx)
     {
-        var lottoDict = Gamb.BookAsDotnetDict();
+        var lottoDict = Game.BookAsDotnetDict();
         var sorted = from entry in lottoDict orderby entry.Value descending select entry;
         string result = "";
         result += $"The pot is {lottoDict["pot"]} {econ.Currencyname}.\n \n";

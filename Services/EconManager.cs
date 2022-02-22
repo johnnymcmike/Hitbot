@@ -3,7 +3,7 @@ using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
-public class EconManager // : IBookKeeper
+public class EconManager : IBookKeeper
 {
     public readonly string Currencyname;
     private readonly IDatabase db;

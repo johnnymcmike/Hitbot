@@ -3,14 +3,14 @@ using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
-public class GamblingManager // : IBookKeeper
+public class GamesManager : IBookKeeper
 {
     private readonly IDatabase db;
     public readonly int lottoDrawprice;
     public readonly int lottoTicketprice;
     private const string bookKey = "lotto";
 
-    public GamblingManager(ConnectionMultiplexer redisConnection)
+    public GamesManager(ConnectionMultiplexer redisConnection)
     {
         db = redisConnection.GetDatabase();
         if (!db.KeyExists(bookKey))
