@@ -38,8 +38,8 @@ internal class Program
 
         ConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         ServiceProvider? services = new ServiceCollection()
-            .AddSingleton(new EconManager(redis))
-            .AddSingleton(new GamblingManager(redis))
+            .AddSingleton<EconManager>(new EconManager(redis))
+            .AddSingleton<GamblingManager>(new GamblingManager(redis))
             .AddSingleton<Random>()
             .BuildServiceProvider();
 
