@@ -3,27 +3,25 @@ using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
-public class EconManager
+public class GamblingManager : IBookKeeper
 {
-    public readonly string Currencyname;
     private readonly IDatabase db;
-    public readonly int Startingamount;
-    private const string bookKey = "balances";
+    public readonly int lottoDrawprice;
+    public readonly int lottoTicketprice;
+    private const string bookKey = "lotto";
 
-    public EconManager(ConnectionMultiplexer redisConnection)
+    public GamblingManager(ConnectionMultiplexer redisConnection)
     {
         db = redisConnection.GetDatabase();
         if (!db.KeyExists(bookKey))
-            db.HashSet(bookKey, "bucket", 0);
-
-        // BalanceBook = DotnetDictFromRedisHash(book1);
+            db.HashSet(bookKey, "pot", 0);
 
         if (File.Exists("config.json"))
         {
             var config = JsonConvert.DeserializeObject<Dictionary<string, string>>(
                 File.ReadAllText("config.json"))!;
-            Currencyname = config["currencyname"];
-            Startingamount = int.Parse(config["startingamount"]);
+            lottoTicketprice = int.Parse(config["lottoticketprice"]);
+            lottoDrawprice = int.Parse(config["lottodrawprice"]);
         }
         else
         {
@@ -37,15 +35,11 @@ public class EconManager
             .ToDictionary(item => item.Key, item => int.Parse(item.Value));
     }
 
-    public bool BookHasKey(string key)
-    {
-        return db.HashExists(bookKey, key);
-    }
-
     public void BookSet(string key, int amount)
     {
         db.HashSet(bookKey, key, amount);
     }
+
 
     public int BookGet(string key)
     {
@@ -57,8 +51,19 @@ public class EconManager
         db.HashDecrement(bookKey, key, by);
     }
 
+    public bool BookHasKey(string key)
+    {
+        return db.HashExists(bookKey, key);
+    }
+
     public void BookIncr(string key, int by = 1)
     {
         db.HashIncrement(bookKey, key, by);
+    }
+
+    public void BookClear()
+    {
+        db.KeyDelete(bookKey);
+        db.HashSet(bookKey, "pot", 0);
     }
 }

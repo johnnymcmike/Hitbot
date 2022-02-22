@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
@@ -38,6 +39,7 @@ internal class Program
         ConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         ServiceProvider? services = new ServiceCollection()
             .AddSingleton(new EconManager(redis))
+            .AddSingleton(new GamblingManager(redis))
             .AddSingleton<Random>()
             .BuildServiceProvider();
 
@@ -50,5 +52,10 @@ internal class Program
 
         await discord.ConnectAsync();
         await Task.Delay(-1);
+    }
+
+    public static string GetBalancebookString(DiscordMember member)
+    {
+        return member.Id + "/" + member.Username + "#" + member.Discriminator;
     }
 }
