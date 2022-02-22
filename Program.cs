@@ -40,6 +40,7 @@ internal class Program
         ServiceProvider? services = new ServiceCollection()
             .AddSingleton(new EconManager(redis))
             .AddSingleton(new GamesManager(redis))
+            .AddSingleton(new DailyFlagManager(redis))
             .AddSingleton<Random>()
             .BuildServiceProvider();
 
