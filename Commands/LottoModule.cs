@@ -12,14 +12,14 @@ namespace Hitbot.Commands;
 [RequireGuild]
 public class LottoModule : BaseCommandModule
 {
-    private readonly int lottoDrawprice;
+    private readonly int drawp;
 
-    private readonly int lottoTicketprice;
+    private readonly int ticketp;
 
     public LottoModule()
     {
-        lottoTicketprice = Gamb.lottoTicketprice;
-        lottoDrawprice = Gamb.lottoDrawprice;
+        ticketp = Gamb.lottoTicketprice;
+        drawp = Gamb.lottoDrawprice;
     }
 
     public Random Rand { get; set; }
@@ -35,7 +35,7 @@ public class LottoModule : BaseCommandModule
     {
         DiscordMember? caller = ctx.Member;
         string callerstring = Program.GetBalancebookString(caller);
-        int totalcost = Math.Abs(numtickets * lottoTicketprice);
+        int totalcost = Math.Abs(numtickets * ticketp);
         if (econ.BookGet(callerstring) < totalcost)
         {
             await ctx.RespondAsync("Insufficient funds.");
@@ -55,15 +55,15 @@ public class LottoModule : BaseCommandModule
         "For a fee, draw the lottery. This either pays out the whole pot to one lucky winner, or nobody gets it and the pot is preserved.")]
     public async Task DrawLottoCommand(CommandContext ctx)
     {
-        if (econ.BookGet(Program.GetBalancebookString(ctx.Member)) < lottoTicketprice)
+        if (econ.BookGet(Program.GetBalancebookString(ctx.Member)) < ticketp)
         {
             await ctx.RespondAsync(
-                $"Insufficient funds to start a draw. Drawing costs {lottoDrawprice} {econ.Currencyname}.");
+                $"Insufficient funds to start a draw. Drawing costs {drawp} {econ.Currencyname}.");
             return;
         }
 
-        int reward = Gamb.BookGet("pot") + lottoDrawprice;
-        econ.BookDecr(Program.GetBalancebookString(ctx.Member), lottoDrawprice);
+        int reward = Gamb.BookGet("pot") + drawp;
+        econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
 
         Dictionary<string, double> chances = new();
         var lottoDict = Gamb.BookAsDotnetDict();
