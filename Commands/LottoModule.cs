@@ -66,11 +66,18 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
+        var lottoDict = Games.BookAsDotnetDict();
+
+        if (lottoDict.Count(VARIABLE => VARIABLE.Value > 0) < 2)
+        {
+            await ctx.RespondAsync("Need more people to enter.");
+            return;
+        }
+
         int reward = Games.BookGet("pot") + drawp;
         Econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
 
         Dictionary<string, double> chances = new();
-        var lottoDict = Games.BookAsDotnetDict();
         lottoDict.Remove("pot");
         int totaltickets = lottoDict.Sum(entry => entry.Value);
         try
