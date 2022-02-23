@@ -15,19 +15,21 @@ public class LottoModule : BaseCommandModule
     private readonly int drawp;
 
     private readonly int ticketp;
-    private GamesManager Games { get; }
+    private LottoManager Lotto { get; }
 
     private EconManager Econ { get; }
 
-    public Random Rand { get; set; }
+    private Random Rand { get; }
+    private DailyFlagManager Dailies { get; }
 
-    public LottoModule(GamesManager games, EconManager eco, Random rng)
+    public LottoModule(LottoManager lotto, EconManager eco, Random rng, DailyFlagManager dail)
     {
-        Games = games;
+        Lotto = lotto;
         Econ = eco;
         Rand = rng;
-        ticketp = Games.LottoTicketprice;
-        drawp = Games.LottoDrawprice;
+        Dailies = dail;
+        ticketp = Lotto.LottoTicketprice;
+        drawp = Lotto.LottoDrawprice;
     }
 
 
@@ -47,8 +49,8 @@ public class LottoModule : BaseCommandModule
         else
         {
             Econ.BookDecr(callerstring, totalcost);
-            Games.BookIncr(callerstring, numtickets);
-            Games.BookIncr("pot", totalcost);
+            Lotto.BookIncr(callerstring, numtickets);
+            Lotto.BookIncr("pot", totalcost);
             await ctx.RespondAsync($"You have signed up for the lottery with {numtickets} tickets. " +
                                    $"Your new balance is {Econ.BookGet(callerstring)}");
         }
@@ -66,10 +68,18 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
+        if (Dailies.DailyExists("any", "lottodraw"))
+        {
+            await ctx.RespondAsync("Lotto was already drawn today.");
+            return;
+        }
 
-        int reward = Games.BookGet("pot") + drawp;
+        Dailies.SetDaily("any", "lottodraw");
+
+
+        int reward = Lotto.BookGet("pot") + drawp;
         Econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
-        var lottoDict = Games.BookAsDotnetDict();
+        var lottoDict = Lotto.BookAsDotnetDict();
 
         Dictionary<string, double> chances = new();
         lottoDict.Remove("pot");
@@ -100,7 +110,7 @@ public class LottoModule : BaseCommandModule
             if (entry.Value > rnum)
             {
                 Econ.BookIncr(entry.Key, reward);
-                Games.BookClear();
+                Lotto.BookClear();
                 await ctx.Channel.SendMessageAsync(
                     $"{entry.Key.Split("/")[1]} has won the lottery, " +
                     $"earning {reward} {Econ.Currencyname}! Congrats!");
@@ -110,8 +120,8 @@ public class LottoModule : BaseCommandModule
 
 
         //if nobody got picked above
-        Games.BookClear();
-        Games.BookSet("pot", reward);
+        Lotto.BookClear();
+        Lotto.BookSet("pot", reward);
         await ctx.Channel.SendMessageAsync($"Nobody won. The pot has remained at {reward}. Better luck next time!");
     }
 
@@ -119,7 +129,7 @@ public class LottoModule : BaseCommandModule
     [Description("Display all entered users and see the pot.")]
     public async Task ViewLottoCommand(CommandContext ctx)
     {
-        var lottoDict = Games.BookAsDotnetDict();
+        var lottoDict = Lotto.BookAsDotnetDict();
         var sorted = from entry in lottoDict orderby entry.Value descending select entry;
         string result = "";
         result += $"The pot is {lottoDict["pot"]} {Econ.Currencyname}.\n \n";

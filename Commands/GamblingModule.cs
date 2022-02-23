@@ -9,13 +9,15 @@ namespace Hitbot.Commands;
 
 public class GamblingModule : BaseCommandModule
 {
-    private EconManager econ { get; }
-    private Random rand { get; }
+    private EconManager Econ { get; }
+    private LottoManager Lotto { get; }
+    private Random Rand { get; }
 
-    public GamblingModule(EconManager eco, Random rng)
+    public GamblingModule(EconManager eco, Random rng, LottoManager lot)
     {
-        econ = eco;
-        rand = rng;
+        Econ = eco;
+        Rand = rng;
+        Lotto = lot;
     }
 
     [Command("slots")]
@@ -23,13 +25,14 @@ public class GamblingModule : BaseCommandModule
     {
         DiscordMember? caller = ctx.Member;
         string callerString = Program.GetBalancebookString(caller);
-        if (!econ.BookHasKey(callerString) || econ.BookGet(callerString) < 1)
+        if (!Econ.BookHasKey(callerString) || Econ.BookGet(callerString) < 1)
         {
             await ctx.Channel.SendMessageAsync("Insufficient funds.");
             return;
         }
 
-        econ.BookDecr(callerString);
+        Econ.BookDecr(callerString);
+        Lotto.BookIncr("pot");
 
         var emojidefs = new List<KeyValuePair<string, int>>
         {
@@ -57,7 +60,7 @@ public class GamblingModule : BaseCommandModule
         string[] results = new string[3];
         for (int i = 0; i < 3; i++)
         {
-            string choice = possemo[rand.Next(emojidefs.Count)];
+            string choice = possemo[Rand.Next(emojidefs.Count)];
             results[i] = choice;
             await Task.Delay(i * 1000);
             slotresultstr += DiscordEmoji.FromName(ctx.Client, choice).ToString();
@@ -70,17 +73,17 @@ public class GamblingModule : BaseCommandModule
             if (results.Count(x => x == emoji) == 2)
             {
                 int reward = emojidefs[i].Value / 3;
-                econ.BookIncr(callerString, reward);
-                await ctx.RespondAsync($"Two {emoji}s! You win {reward} {econ.Currencyname}! Yippee!");
+                Econ.BookIncr(callerString, reward);
+                await ctx.RespondAsync($"Two {emoji}s! You win {reward} {Econ.Currencyname}! Yippee!");
                 return;
             }
 
             if (results.Count(x => x == emoji) == 3)
             {
                 int reward = emojidefs[i].Value;
-                econ.BookIncr(callerString, reward);
+                Econ.BookIncr(callerString, reward);
                 await ctx.RespondAsync(
-                    $"THREE {emoji}s! that's a JACKBOT baybee! {reward} {econ.Currencyname}!!!");
+                    $"THREE {emoji}s! that's a JACKBOT baybee! {reward} {Econ.Currencyname}!!!");
                 return;
             }
         }
@@ -94,7 +97,7 @@ public class GamblingModule : BaseCommandModule
         DiscordEmoji? triumph = DiscordEmoji.FromName(ctx.Client, ":triumph:");
         string callerstring = Program.GetBalancebookString(caller);
         string targetstring = Program.GetBalancebookString(target);
-        if (econ.BookGet(callerstring) < bet || econ.BookGet(targetstring) < bet)
+        if (Econ.BookGet(callerstring) < bet || Econ.BookGet(targetstring) < bet)
         {
             await ctx.RespondAsync("Insufficient funds on one or both sides.");
             return;
@@ -112,7 +115,7 @@ public class GamblingModule : BaseCommandModule
         }
 
         int[] rnums = new int[3];
-        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 11);
+        for (int i = 0; i < 3; i++) rnums[i] = Rand.Next(1, 11);
 
         await ctx.Channel.SendMessageAsync("First one to say anything after I say \"GO\" wins.");
         await ctx.Channel.SendMessageAsync("Three...");
@@ -142,17 +145,17 @@ public class GamblingModule : BaseCommandModule
 
         if (winningMessage.Author.Id == caller.Id)
         {
-            econ.BookIncr(callerstring, bet);
-            econ.BookDecr(targetstring, bet);
+            Econ.BookIncr(callerstring, bet);
+            Econ.BookDecr(targetstring, bet);
         }
         else
         {
-            econ.BookIncr(targetstring, bet);
-            econ.BookDecr(callerstring, bet);
+            Econ.BookIncr(targetstring, bet);
+            Econ.BookDecr(callerstring, bet);
         }
 
         await ctx.Channel.SendMessageAsync($"{winningMessage.Author.Username} won!");
         await ctx.RespondAsync(
-            $"Resulting balances: {econ.BookGet(callerstring)}, {econ.BookGet(targetstring)}");
+            $"Resulting balances: {Econ.BookGet(callerstring)}, {Econ.BookGet(targetstring)}");
     }
 }
