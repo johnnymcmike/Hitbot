@@ -143,12 +143,12 @@ public class GamblingModule : BaseCommandModule
         if (winningMessage.Author.Id == caller.Id)
         {
             econ.BookIncr(callerstring, bet);
-            econ.BookDecr(targetstring);
+            econ.BookDecr(targetstring, bet);
         }
         else
         {
             econ.BookIncr(targetstring, bet);
-            econ.BookDecr(callerstring);
+            econ.BookDecr(callerstring, bet);
         }
 
         await ctx.Channel.SendMessageAsync($"{winningMessage.Author.Username} won!");
