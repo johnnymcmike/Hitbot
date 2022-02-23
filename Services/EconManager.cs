@@ -67,5 +67,7 @@ public class EconManager : IBookKeeper
     public override void BookIncr(string key, int by = 1)
     {
         db.HashIncrement(BookKey, key, by);
+        if ((int) db.HashGet(BookKey, key) < 0)
+            db.HashSet(BookKey, key, 0);
     }
 }
