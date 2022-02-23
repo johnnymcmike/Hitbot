@@ -92,6 +92,9 @@ public class GamblingModule : BaseCommandModule
         InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
         DiscordMember? caller = ctx.Member;
         DiscordEmoji? triumph = DiscordEmoji.FromName(ctx.Client, ":triumph:");
+        string callerstring = Program.GetBalancebookString(caller);
+        string targetstring = Program.GetBalancebookString(target);
+        if (econ.BookGet(callerstring) < bet) await ctx.RespondAsync("Insufficient funds.");
 
         DiscordMessage? firstmsg =
             await ctx.Channel.SendMessageAsync($"Time for a duel! {target.Nickname}, react with {triumph} to accept!");
@@ -126,9 +129,6 @@ public class GamblingModule : BaseCommandModule
             return;
         }
 
-
-        string callerstring = Program.GetBalancebookString(caller);
-        string targetstring = Program.GetBalancebookString(target);
         if (winningMessage.Author.Id == caller.Id)
         {
             DebtGenerousIncr(callerstring, bet);
