@@ -66,16 +66,10 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
-        var lottoDict = Games.BookAsDotnetDict();
-
-        if (lottoDict.Count(VARIABLE => VARIABLE.Value > 0) < 2)
-        {
-            await ctx.RespondAsync("Need more people to enter.");
-            return;
-        }
 
         int reward = Games.BookGet("pot") + drawp;
         Econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
+        var lottoDict = Games.BookAsDotnetDict();
 
         Dictionary<string, double> chances = new();
         lottoDict.Remove("pot");
@@ -96,6 +90,12 @@ public class LottoModule : BaseCommandModule
         foreach (var entry in chances)
         {
             rnum = Rand.NextDouble();
+            if (entry.Value == 1)
+            {
+                await ctx.RespondAsync("Need more people to draw.");
+                return;
+            }
+
             Console.WriteLine($"{entry.Key.Split("/")[1]}'s chances value is {entry.Value} and random is {rnum}");
             if (entry.Value > rnum)
             {
