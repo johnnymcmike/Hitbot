@@ -105,7 +105,8 @@ public class GamblingModule : BaseCommandModule
         }
 
         int[] rnums = new int[3];
-        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 5);
+        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 7);
+
         await ctx.Channel.SendMessageAsync("First one to say \"SHOOT\" verbatim after I say \"GO\" wins.");
         await ctx.Channel.SendMessageAsync("Three...");
         await Task.Delay(rnums[0] * 1000);
@@ -115,8 +116,16 @@ public class GamblingModule : BaseCommandModule
         await Task.Delay(rnums[2] * 1000);
         await ctx.Channel.SendMessageAsync("GO");
 
-        await interactivity.WaitForMessageAsync(x =>
+        var wa = await interactivity.WaitForMessageAsync(x =>
             x.Channel.Id == ctx.Channel.Id && x.Author.Id == caller.Id || x.Author.Id == target.Id);
-        await ctx.Channel.SendMessageAsync("somebody won but i cant be bothered to figure it out");
+        DiscordMessage? we = wa.Result;
+
+        if (wa.TimedOut)
+        {
+            await ctx.RespondAsync("Nobody won. You slackers.");
+            return;
+        }
+
+        await ctx.Channel.SendMessageAsync($"{we.Author.Username} won!");
     }
 }
