@@ -112,15 +112,22 @@ public class GamblingModule : BaseCommandModule
         }
 
         int[] rnums = new int[3];
-        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 10);
+        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 11);
 
-        await ctx.Channel.SendMessageAsync("First one to say \"SHOOT\" verbatim after I say \"GO\" wins.");
+        await ctx.Channel.SendMessageAsync("First one to say anything after I say \"GO\" wins.");
         await ctx.Channel.SendMessageAsync("Three...");
         await Task.Delay(rnums[0] * 1000);
-        await ctx.Channel.SendMessageAsync("Two...");
-        await Task.Delay(rnums[1] * 1000);
-        await ctx.Channel.SendMessageAsync("One...");
-        await Task.Delay(rnums[2] * 1000);
+        if (rnums[1] <= 7)
+        {
+            await ctx.Channel.SendMessageAsync("Two...");
+            await Task.Delay(rnums[1] * 1000);
+            if (rnums[2] <= 7)
+            {
+                await ctx.Channel.SendMessageAsync("One...");
+                await Task.Delay(rnums[2] * 1000);
+            }
+        }
+
         await ctx.Channel.SendMessageAsync("GO");
 
         var wa = await interactivity.WaitForMessageAsync(x =>
