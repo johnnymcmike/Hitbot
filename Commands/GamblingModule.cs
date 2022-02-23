@@ -142,24 +142,17 @@ public class GamblingModule : BaseCommandModule
 
         if (winningMessage.Author.Id == caller.Id)
         {
-            DebtGenerousIncr(callerstring, bet);
+            econ.BookIncr(callerstring, bet);
             econ.BookDecr(targetstring);
         }
         else
         {
-            DebtGenerousIncr(targetstring, bet);
+            econ.BookIncr(targetstring, bet);
             econ.BookDecr(callerstring);
         }
 
         await ctx.Channel.SendMessageAsync($"{winningMessage.Author.Username} won!");
         await ctx.RespondAsync(
             $"Resulting balances: {econ.BookGet(callerstring)}, {econ.BookGet(targetstring)}");
-    }
-
-    private void DebtGenerousIncr(string key, int by = 1)
-    {
-        econ.BookIncr(key, by);
-        if (econ.BookGet(key) < 0 && by != 0)
-            econ.BookSet(key, 0);
     }
 }
