@@ -87,7 +87,7 @@ public class GamblingModule : BaseCommandModule
     }
 
     [Command("duel")]
-    public async Task DuelCommand(CommandContext ctx, DiscordMember target)
+    public async Task DuelCommand(CommandContext ctx, DiscordMember target, int bet = 0)
     {
         InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
         DiscordMember? caller = ctx.Member;
@@ -105,7 +105,7 @@ public class GamblingModule : BaseCommandModule
         }
 
         int[] rnums = new int[3];
-        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 7);
+        for (int i = 0; i < 3; i++) rnums[i] = rand.Next(1, 10);
 
         await ctx.Channel.SendMessageAsync("First one to say \"SHOOT\" verbatim after I say \"GO\" wins.");
         await ctx.Channel.SendMessageAsync("Three...");
@@ -118,14 +118,37 @@ public class GamblingModule : BaseCommandModule
 
         var wa = await interactivity.WaitForMessageAsync(x =>
             x.Channel.Id == ctx.Channel.Id && x.Author.Id == caller.Id || x.Author.Id == target.Id);
-        DiscordMessage? we = wa.Result;
+        DiscordMessage? winningMessage = wa.Result;
 
-        if (wa.TimedOut)
+        if (wa.TimedOut || winningMessage is null)
         {
             await ctx.RespondAsync("Nobody won. You slackers.");
             return;
         }
 
-        await ctx.Channel.SendMessageAsync($"{we.Author.Username} won!");
+
+        string callerstring = Program.GetBalancebookString(caller);
+        string targetstring = Program.GetBalancebookString(target);
+        if (winningMessage.Author.Id == caller.Id)
+        {
+            DebtGenerousIncr(callerstring, bet);
+            econ.BookDecr(targetstring);
+        }
+        else
+        {
+            DebtGenerousIncr(targetstring, bet);
+            econ.BookDecr(callerstring);
+        }
+
+        await ctx.Channel.SendMessageAsync($"{winningMessage.Author.Username} won!");
+        await ctx.RespondAsync(
+            $"Resulting balances: {econ.BookGet(callerstring)}, {econ.BookGet(targetstring)}");
+    }
+
+    private void DebtGenerousIncr(string key, int by = 1)
+    {
+        econ.BookIncr(key, by);
+        if (econ.BookGet(key) < 0 && by != 0)
+            econ.BookSet(key, 0);
     }
 }
