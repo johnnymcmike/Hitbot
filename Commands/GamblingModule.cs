@@ -94,7 +94,11 @@ public class GamblingModule : BaseCommandModule
         DiscordEmoji? triumph = DiscordEmoji.FromName(ctx.Client, ":triumph:");
         string callerstring = Program.GetBalancebookString(caller);
         string targetstring = Program.GetBalancebookString(target);
-        if (econ.BookGet(callerstring) < bet) await ctx.RespondAsync("Insufficient funds.");
+        if (econ.BookGet(callerstring) < bet || econ.BookGet(targetstring) < bet)
+        {
+            await ctx.RespondAsync("Insufficient funds on one or both sides.");
+            return;
+        }
 
         DiscordMessage? firstmsg =
             await ctx.Channel.SendMessageAsync($"Time for a duel! {target.Nickname}, react with {triumph} to accept!");

@@ -60,6 +60,8 @@ public class EconManager : IBookKeeper
     public override void BookDecr(string key, int by = 1)
     {
         db.HashDecrement(BookKey, key, by);
+        if ((int) db.HashGet(BookKey, key) < 0)
+            db.HashSet(BookKey, key, 0);
     }
 
     public override void BookIncr(string key, int by = 1)
