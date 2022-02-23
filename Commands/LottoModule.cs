@@ -74,9 +74,6 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
-        Dailies.SetDaily("any", "lottodraw");
-
-
         int reward = Lotto.BookGet("pot") + drawp;
         Econ.BookDecr(Program.GetBalancebookString(ctx.Member), drawp);
         var lottoDict = Lotto.BookAsDotnetDict();
@@ -123,6 +120,7 @@ public class LottoModule : BaseCommandModule
         Lotto.BookClear();
         Lotto.BookSet("pot", reward);
         await ctx.Channel.SendMessageAsync($"Nobody won. The pot has remained at {reward}. Better luck next time!");
+        Dailies.SetDaily("any", "lottodraw");
     }
 
     [Command("view")]
