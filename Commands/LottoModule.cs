@@ -51,12 +51,9 @@ public class LottoModule : BaseCommandModule
     public async Task DrawLottoCommand(CommandContext ctx)
     {
         var lottoList = Lotto.LottoUsersAsList();
-        string winner;
-        try
-        {
-            winner = lottoList[Rand.Next(0, lottoList.Count + 1)];
-        }
-        catch (IndexOutOfRangeException)
+        string winner = lottoList[Rand.Next(0, lottoList.Count)];
+        int nobody = Rand.Next(0, 8);
+        if (nobody == 0)
         {
             int previousPot = Lotto.Pot;
             await ctx.RespondAsync("Nobody won. The pot has been preserved. Better luck next time!");
@@ -64,6 +61,7 @@ public class LottoModule : BaseCommandModule
             Lotto.IncrPot(previousPot);
             return;
         }
+
 
         Econ.BookIncr(winner, Lotto.Pot);
         await ctx.RespondAsync($"{winner.Split("/")[1]} won, gaining {Lotto.Pot} {Econ.Currencyname}. Yippee!");
