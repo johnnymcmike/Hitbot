@@ -32,7 +32,7 @@ public class GamblingModule : BaseCommandModule
         }
 
         Econ.BookDecr(callerString);
-        Lotto.BookIncr("pot");
+        Lotto.IncrPot();
 
         var emojidefs = new List<KeyValuePair<string, int>>
         {

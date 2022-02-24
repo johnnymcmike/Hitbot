@@ -3,19 +3,17 @@ using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
-public class LottoManager : IBookKeeper
+public class LottoManager
 {
     private readonly IDatabase db;
     public readonly int LottoDrawprice;
     public readonly int LottoTicketprice;
-    private const string BookKey = "lotto";
+
+    public int Pot => (int) db.StringGet("lotto:pot");
 
     public LottoManager(ConnectionMultiplexer redisConnection)
     {
         db = redisConnection.GetDatabase();
-        if (!db.KeyExists(BookKey))
-            db.HashSet(BookKey, "pot", 0);
-
         if (File.Exists("config.json"))
         {
             var config = JsonConvert.DeserializeObject<Dictionary<string, string>>(
@@ -29,41 +27,25 @@ public class LottoManager : IBookKeeper
         }
     }
 
-    public Dictionary<string, int> BookAsDotnetDict()
+    public void EnterLotto(string user)
     {
-        return db.HashGetAll(BookKey).ToStringDictionary()
-            .ToDictionary(item => item.Key, item => int.Parse(item.Value));
+        db.SetAdd("lotto", user);
     }
 
-    public override void BookSet(string key, int amount)
+    public void ClearLotto()
     {
-        db.HashSet(BookKey, key, amount);
+        db.KeyDelete("lotto");
+        db.KeyDelete("lotto:pot");
     }
 
-
-    public override int BookGet(string key)
+    public void IncrPot(int by = 1)
     {
-        return (int) db.HashGet(BookKey, key);
+        db.StringIncrement("lotto:pot", by);
     }
 
-    public override void BookDecr(string key, int by = 1)
+    public List<string> LottoUsersAsList()
     {
-        db.HashDecrement(BookKey, key, by);
-    }
-
-    public override bool BookHasKey(string key)
-    {
-        return db.HashExists(BookKey, key);
-    }
-
-    public override void BookIncr(string key, int by = 1)
-    {
-        db.HashIncrement(BookKey, key, by);
-    }
-
-    public override void BookClear()
-    {
-        db.KeyDelete(BookKey);
-        db.HashSet(BookKey, "pot", 0);
+        var redisValueList = db.SetMembers("lotto").ToList();
+        return redisValueList.Select(entry => entry.ToString()).ToList();
     }
 }
