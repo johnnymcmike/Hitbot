@@ -57,10 +57,22 @@ public class LottoModule : BaseCommandModule
             return;
         }
 
+        if (Dailies.DailyExists("any", "lottodraw"))
+        {
+            await ctx.RespondAsync("Lotto was already drawn today. Come back tomorrow!");
+            return;
+        }
+
+        var lottoList = Lotto.LottoUsersAsList();
+        if (lottoList.Count <= 1)
+        {
+            await ctx.RespondAsync("Not enough people to draw.");
+            return;
+        }
+
         Econ.BookDecr(Program.GetBalancebookString(ctx.Member), Lotto.LottoDrawprice);
         Lotto.IncrPot(Lotto.LottoDrawprice);
 
-        var lottoList = Lotto.LottoUsersAsList();
         string winner = lottoList[Rand.Next(0, lottoList.Count)];
         int nobody = Rand.Next(0, 8);
         if (nobody == 0)
@@ -69,12 +81,14 @@ public class LottoModule : BaseCommandModule
             await ctx.RespondAsync("Nobody won. The pot has been preserved. Better luck next time!");
             Lotto.ClearLotto();
             Lotto.IncrPot(previousPot);
+            Dailies.SetDaily("any", "lottodraw");
             return;
         }
 
 
         Econ.BookIncr(winner, Lotto.Pot);
         await ctx.RespondAsync($"{winner.Split("/")[1]} won, gaining {Lotto.Pot} {Econ.Currencyname}. Yippee!");
+        Dailies.SetDaily("any", "lottodraw");
         Lotto.ClearLotto();
     }
 
