@@ -42,6 +42,7 @@ public class LottoModule : BaseCommandModule
 
         Econ.BookDecr(callerstring, Lotto.LottoTicketprice);
         Lotto.EnterLotto(callerstring);
+        Lotto.IncrPot(Lotto.LottoTicketprice);
         await ctx.RespondAsync("You are entered : )");
     }
 
@@ -50,6 +51,15 @@ public class LottoModule : BaseCommandModule
         "For a fee, draw the lottery. This either pays out the whole pot to one lucky winner, or nobody gets it and the pot is preserved.")]
     public async Task DrawLottoCommand(CommandContext ctx)
     {
+        if (Econ.BookGet(Program.GetBalancebookString(ctx.Member)) < Lotto.LottoTicketprice)
+        {
+            await ctx.RespondAsync("Insufficient funds.");
+            return;
+        }
+
+        Econ.BookDecr(Program.GetBalancebookString(ctx.Member), Lotto.LottoDrawprice);
+        Lotto.IncrPot(Lotto.LottoDrawprice);
+
         var lottoList = Lotto.LottoUsersAsList();
         string winner = lottoList[Rand.Next(0, lottoList.Count)];
         int nobody = Rand.Next(0, 8);
