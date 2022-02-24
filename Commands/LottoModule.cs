@@ -34,14 +34,13 @@ public class LottoModule : BaseCommandModule
 
 
     [Command("buyticket")]
-    [Description("Buy a lottery ticket for a preset fee. You are able to buy multiple.")]
-    public async Task EnterLottoCommand(CommandContext ctx,
-        [Description("Amount of tickets to buy. Defaults to 1.")]
-        int numtickets = 1)
+    [Description("Buy a lottery ticket for a preset fee.")]
+    public async Task EnterLottoCommand(CommandContext ctx)
     {
         DiscordMember? caller = ctx.Member;
         string callerstring = Program.GetBalancebookString(caller);
-        int totalcost = Math.Abs(numtickets * ticketp);
+        int totalcost = Math.Abs(ticketp);
+        if (Lotto.BookGet(callerstring) > 1) return;
         if (Econ.BookGet(callerstring) < totalcost)
         {
             await ctx.RespondAsync("Insufficient funds.");
@@ -49,9 +48,9 @@ public class LottoModule : BaseCommandModule
         else
         {
             Econ.BookDecr(callerstring, totalcost);
-            Lotto.BookIncr(callerstring, numtickets);
+            Lotto.BookIncr(callerstring);
             Lotto.BookIncr("pot", totalcost);
-            await ctx.RespondAsync($"You have signed up for the lottery with {numtickets} tickets. " +
+            await ctx.RespondAsync("You have signed up for the lottery. " +
                                    $"Your new balance is {Econ.BookGet(callerstring)}");
         }
     }
@@ -111,6 +110,7 @@ public class LottoModule : BaseCommandModule
                 await ctx.Channel.SendMessageAsync(
                     $"{entry.Key.Split("/")[1]} has won the lottery, " +
                     $"earning {reward} {Econ.Currencyname}! Congrats!");
+                Dailies.SetDaily("any", "lottodraw");
                 return;
             }
         }
