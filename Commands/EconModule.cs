@@ -163,4 +163,14 @@ public class EconModule : BaseCommandModule
             await ctx.RespondAsync("You have already claimed this today.");
         }
     }
+
+    [Command("turgle")]
+    [Description("Bad idea.")]
+    public async Task TurgleCommand(CommandContext ctx, int amount = 20)
+    {
+        string callerstring = Program.GetBalancebookString(ctx.Member);
+        Econ.BookDecr(callerstring, amount);
+        await ctx.RespondAsync(
+            $"You turgled away {amount} perfectly good {Econ.Currencyname}, leaving you with {Econ.BookGet(callerstring)}.");
+    }
 }
