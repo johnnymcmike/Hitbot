@@ -166,7 +166,7 @@ public class EconModule : BaseCommandModule
 
     [Command("turgle")]
     [Description("Bad idea.")]
-    public async Task TurgleCommand(CommandContext ctx, int amount = 20)
+    public async Task TurgleCommand(CommandContext ctx, int amount = 100000)
     {
         string callerstring = Program.GetBalancebookString(ctx.Member);
         Econ.BookDecr(callerstring, amount);
