@@ -50,6 +50,11 @@ internal class Program
             StringPrefixes = new[] {"~"},
             Services = services
         });
+        discord.GetCommandsNext().CommandErrored += async (s, e) =>
+        {
+            Console.WriteLine("Command errored:");
+            Console.WriteLine(e.Exception.Message);
+        };
         commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
         await discord.ConnectAsync();
