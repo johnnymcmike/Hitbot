@@ -165,16 +165,16 @@ public class GamblingModule : BaseCommandModule
     {
         InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
         DiscordMember? caller = ctx.Member;
-        DiscordMessage? entrymsg = await
+        DiscordEmoji joker = DiscordEmoji.FromName(ctx.Client, "black_joker");
+        DiscordMessage entrymsg = await
             ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
-                                         $"{DiscordEmoji.FromName(ctx.Client, "black_joker")} within " +
-                                         "30 seconds to enter.");
-        await entrymsg.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, "black_joker"));
+                                         $"{joker} within 30 seconds to enter.");
+        await entrymsg.CreateReactionAsync(joker);
 
         var reactions = await entrymsg.CollectReactionsAsync();
         var users = new List<DiscordUser>();
         foreach (Reaction? reaction in reactions)
-            if (reaction.Emoji.Equals(DiscordEmoji.FromName(ctx.Client, "black_joker")))
+            if (reaction.Emoji.Equals(joker))
                 users = reaction.Users.ToList();
 
         if (users.Count == 0)
