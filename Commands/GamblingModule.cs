@@ -163,7 +163,6 @@ public class GamblingModule : BaseCommandModule
     [Command("blackjack")]
     public async Task BlackJackCommand(CommandContext ctx)
     {
-        DiscordMember? caller = ctx.Member;
         DiscordEmoji joker = DiscordEmoji.FromName(ctx.Client, "diamonds");
         DiscordMessage entrymsg = await
             ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
