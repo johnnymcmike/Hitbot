@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 
@@ -157,5 +158,31 @@ public class GamblingModule : BaseCommandModule
         await ctx.Channel.SendMessageAsync($"{winningMessage.Author.Username} won!");
         await ctx.RespondAsync(
             $"Resulting balances: {Econ.BookGet(callerstring)}, {Econ.BookGet(targetstring)}");
+    }
+
+    [Command("blackjack")]
+    public async Task BlackJackCommand(CommandContext ctx)
+    {
+        InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
+        DiscordMember? caller = ctx.Member;
+        DiscordMessage? entrymsg = await
+            ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
+                                         $"{DiscordEmoji.FromName(ctx.Client, "black_joker")} within " +
+                                         "30 seconds to enter.");
+        await entrymsg.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, "black_joker"));
+
+        var reactions = await entrymsg.CollectReactionsAsync();
+        var users = new List<DiscordUser>();
+        foreach (Reaction? reaction in reactions)
+            if (reaction.Emoji.Equals(DiscordEmoji.FromName(ctx.Client, "black_joker")))
+                users = reaction.Users.ToList();
+
+        if (users.Count == 0)
+        {
+            await ctx.RespondAsync("Timed out.");
+            return;
+        }
+
+        foreach (DiscordUser VARIABLE in users) Console.WriteLine(VARIABLE);
     }
 }
