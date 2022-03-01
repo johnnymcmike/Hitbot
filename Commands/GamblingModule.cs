@@ -163,9 +163,8 @@ public class GamblingModule : BaseCommandModule
     [Command("blackjack")]
     public async Task BlackJackCommand(CommandContext ctx)
     {
-        InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
         DiscordMember? caller = ctx.Member;
-        DiscordEmoji joker = DiscordEmoji.FromName(ctx.Client, "black_joker");
+        DiscordEmoji joker = DiscordEmoji.FromName(ctx.Client, "diamonds");
         DiscordMessage entrymsg = await
             ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
                                          $"{joker} within 30 seconds to enter.");
