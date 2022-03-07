@@ -4,6 +4,11 @@ public class PlayingCard
 {
     public CardSuit Suit { get; set; }
     public CardNumber Num { get; set; }
+
+    public override string ToString()
+    {
+        return $"{Enum.GetName(Num)} of {Enum.GetName(Suit)}";
+    }
 }
 
 public enum CardSuit

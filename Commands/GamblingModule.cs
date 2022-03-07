@@ -171,12 +171,12 @@ public class GamblingModule : BaseCommandModule
         await entrymsg.CreateReactionAsync(diamondemoji);
 
         var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
-        var users = new List<DiscordUser>();
+        var users = new List<DiscordMember>();
         foreach (Reaction? reactionObject in reactions)
         {
             DiscordUser? reactedUser = reactionObject.Users.First();
             if (!reactedUser.Equals(ctx.Client.CurrentUser))
-                users.Add(reactionObject.Users.First());
+                users.Add((DiscordMember) reactedUser);
         }
 
         if (users.Count == 0)
@@ -185,10 +185,19 @@ public class GamblingModule : BaseCommandModule
             return;
         }
 
-        foreach (DiscordUser VARIABLE in users) Console.WriteLine(VARIABLE);
+        //DEBUG
+        foreach (DiscordMember VARIABLE in users) Console.WriteLine(VARIABLE);
 
         var deck = new DeckOfCards();
-        // deck.Shuffle();
-        foreach (PlayingCard VARIABLE in deck.Cards) Console.WriteLine($"{VARIABLE.Num} of {VARIABLE.Suit}");
+        deck.Shuffle();
+
+        var usersAndHands = users.ToDictionary(x => x, _ => new List<PlayingCard>());
+
+        foreach (var wa in usersAndHands)
+        {
+            wa.Value.Add(deck.DrawCard());
+            wa.Value.Add(deck.DrawCard());
+            await wa.Key.SendMessageAsync($"Your hand is: {wa.Value[0]}, {wa.Value[1]}");
+        }
     }
 }
