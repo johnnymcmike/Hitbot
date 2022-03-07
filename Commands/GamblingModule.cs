@@ -2,6 +2,7 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 
@@ -169,14 +170,18 @@ public class GamblingModule : BaseCommandModule
         await entrymsg.CreateReactionAsync(diamondemoji);
 
         var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
-        var users = reactions.ToList()[0].Users;
-
-        if (users.Count == 0)
+        foreach (Reaction? VARIABLE in reactions)
         {
-            await ctx.RespondAsync("Timed out.");
-            return;
+            Console.WriteLine("1 reaction object");
         }
+        // var users = reactions.ToList()[0].Users;
+        //
+        // if (users.Count == 0)
+        // {
+        //     await ctx.RespondAsync("Timed out.");
+        //     return;
+        // }
 
-        foreach (DiscordUser? VARIABLE in users) Console.WriteLine(VARIABLE);
+        // foreach (var VARIABLE in users) Console.WriteLine(VARIABLE);
     }
 }
