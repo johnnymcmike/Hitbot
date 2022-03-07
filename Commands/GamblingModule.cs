@@ -171,18 +171,18 @@ public class GamblingModule : BaseCommandModule
 
         var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
         var users = new List<DiscordUser>();
-        foreach (Reaction? VARIABLE in reactions)
+        foreach (Reaction? reactionObject in reactions)
         {
-            users.Add(VARIABLE.Users.First());
+            DiscordUser? reactedUser = reactionObject.Users.First();
+            if (!reactedUser.Equals(ctx.Client.CurrentUser))
+                users.Add(reactionObject.Users.First());
         }
 
-        // var users = reactions.ToList()[0].Users;
-        //
-        // if (users.Count == 0)
-        // {
-        //     await ctx.RespondAsync("Timed out.");
-        //     return;
-        // }
+        if (users.Count == 0)
+        {
+            await ctx.RespondAsync("Timed out.");
+            return;
+        }
 
         foreach (DiscordUser VARIABLE in users) Console.WriteLine(VARIABLE);
     }
