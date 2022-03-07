@@ -25,4 +25,14 @@ public class DeckOfCards
         var shuffledcards = Cards.OrderBy(a => rng.Next()).ToList();
         Cards = shuffledcards;
     }
+
+    public PlayingCard? DrawCard()
+    {
+        if (Cards.Count == 0)
+            return null;
+
+        PlayingCard result = Cards[0];
+        Cards.RemoveAt(0);
+        return result;
+    }
 }

@@ -188,7 +188,7 @@ public class GamblingModule : BaseCommandModule
         foreach (DiscordUser VARIABLE in users) Console.WriteLine(VARIABLE);
 
         var deck = new DeckOfCards();
-        deck.Shuffle();
+        // deck.Shuffle();
         foreach (PlayingCard VARIABLE in deck.Cards) Console.WriteLine($"{VARIABLE.Num} of {VARIABLE.Suit}");
     }
 }
