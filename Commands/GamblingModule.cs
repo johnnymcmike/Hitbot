@@ -170,10 +170,12 @@ public class GamblingModule : BaseCommandModule
         await entrymsg.CreateReactionAsync(diamondemoji);
 
         var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
+        var users = new List<DiscordUser>();
         foreach (Reaction? VARIABLE in reactions)
         {
-            Console.WriteLine("1 reaction object");
+            users.Add(VARIABLE.Users.First());
         }
+
         // var users = reactions.ToList()[0].Users;
         //
         // if (users.Count == 0)
@@ -182,6 +184,6 @@ public class GamblingModule : BaseCommandModule
         //     return;
         // }
 
-        // foreach (var VARIABLE in users) Console.WriteLine(VARIABLE);
+        foreach (DiscordUser VARIABLE in users) Console.WriteLine(VARIABLE);
     }
 }
