@@ -16,7 +16,7 @@ public class DeckOfCards
     {
         Cards.Clear();
         for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 14; j++)
+        for (int j = 1; j < 14; j++)
             Cards.Add(new PlayingCard {Suit = (CardSuit) i, Num = (CardNumber) j});
     }
 
