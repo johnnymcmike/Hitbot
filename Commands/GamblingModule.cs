@@ -5,6 +5,7 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
+using Hitbot.Types;
 
 namespace Hitbot.Commands;
 
@@ -185,5 +186,9 @@ public class GamblingModule : BaseCommandModule
         }
 
         foreach (DiscordUser VARIABLE in users) Console.WriteLine(VARIABLE);
+
+        var deck = new DeckOfCards();
+        deck.Shuffle();
+        foreach (PlayingCard VARIABLE in deck.Cards) Console.WriteLine($"{VARIABLE.Num} of {VARIABLE.Suit}");
     }
 }
