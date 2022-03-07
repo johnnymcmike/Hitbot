@@ -2,7 +2,6 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 
@@ -163,17 +162,14 @@ public class GamblingModule : BaseCommandModule
     [Command("blackjack")]
     public async Task BlackJackCommand(CommandContext ctx)
     {
-        DiscordEmoji joker = DiscordEmoji.FromName(ctx.Client, ":diamonds:");
+        DiscordEmoji diamondemoji = DiscordEmoji.FromName(ctx.Client, ":diamonds:");
         DiscordMessage entrymsg = await
             ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
-                                         $"{joker} within 30 seconds to enter.");
-        await entrymsg.CreateReactionAsync(joker);
+                                         $"{diamondemoji} within 20 seconds to enter.");
+        await entrymsg.CreateReactionAsync(diamondemoji);
 
-        var reactions = await entrymsg.CollectReactionsAsync();
-        var users = new List<DiscordUser>();
-        foreach (Reaction? reaction in reactions)
-            if (reaction.Emoji.Equals(joker))
-                users = reaction.Users.ToList();
+        var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
+        var users = reactions.ToList().Find(e => e.Emoji.Equals(diamondemoji))?.Users.ToList();
 
         if (users.Count == 0)
         {
