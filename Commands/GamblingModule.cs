@@ -256,14 +256,14 @@ public class GamblingModule : BaseCommandModule
                     await ctx.Channel.SendMessageAsync("Hitting...");
                     var drawncard = deck.DrawCard();
                     playerHands[currentPlayer].Cards.Add(drawncard);
+                    await currentPlayer.SendMessageAsync(
+                        $"You got the {drawncard}. Your new hand value is {playerHands[currentPlayer].GetHandValue()}.");
+
                     if (playerHands[currentPlayer].GetHandValue() > 21)
                     {
                         await ctx.Channel.SendMessageAsync("You busted! Next turn...");
                         break;
                     }
-
-                    await currentPlayer.SendMessageAsync(
-                        $"You got the {drawncard}. Your new hand value is {playerHands[currentPlayer].GetHandValue()}.");
                 }
                 else if (lala == "stand")
                 {
@@ -296,10 +296,12 @@ public class GamblingModule : BaseCommandModule
         foreach (var (key, value) in playerHands)
         {
             everyhand += $"---{key.DisplayName} had:\n";
-            everyhand += value;
+            everyhand += value + "\n";
+            everyhand += $"With value of {value.GetHandValue()}";
         }
 
         everyhand += "---Dealer had:\n" + dealerHand;
+        everyhand += $"With value of {dealerHand.GetHandValue()}";
         var pages = interactivity.GeneratePagesInEmbed(everyhand);
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
         //Determine winner
@@ -318,6 +320,7 @@ public class GamblingModule : BaseCommandModule
                 duplicateScores.Add(dictkey, dictvalue);
             }
 
-        await ctx.Channel.SendMessageAsync($"I'm pretty sure {currentWinner} won but hey this isnt finished lol");
+        await ctx.Channel.SendMessageAsync(
+            $"I'm pretty sure {currentWinner.DisplayName} won but hey this isnt finished lol");
     }
 }
