@@ -295,18 +295,20 @@ public class GamblingModule : BaseCommandModule
         var everyhand = "Here's everyone's final hand. Person who started the game controls pages.\n";
         foreach (var (key, value) in playerHands)
         {
-            everyhand += $"------{key.DisplayName} had:\n";
+            everyhand += $"-----------{key.DisplayName} had:\n";
             everyhand += value;
             everyhand += $"...with a value of {value.GetHandValue()}\n";
         }
 
-        everyhand += "------Dealer had:\n" + dealerHand;
+        everyhand += "-----------Dealer had:\n" + dealerHand;
         everyhand += $"...with a value of {dealerHand.GetHandValue()}";
         var pages = interactivity.GeneratePagesInEmbed(everyhand);
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
+
         //Determine winner
         playerHands.Add(ctx.Guild.CurrentMember, dealerHand);
         var currentWinner = ctx.Guild.CurrentMember;
+        Console.WriteLine("i made it this far");
         var duplicateScores = new Dictionary<DiscordMember, BlackJackHand>();
         foreach (var (dictkey, dictvalue) in playerHands)
             if (playerHands[currentWinner].GetHandValue() < dictvalue.GetHandValue())
