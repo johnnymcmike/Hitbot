@@ -334,6 +334,22 @@ public class GamblingModule : BaseCommandModule
             }
         }
 
+        //TODO: WARNING: AI GENERATED CODE
+        //Determine which hand in duplicateScores has the most face cards (cards with a Num of greater than 10)
+        if (duplicateScores.ContainsKey(currentWinner))
+        {
+            var mostFaceCards = duplicateScores[currentWinner];
+            foreach (var (key, value) in duplicateScores)
+                if (value.Cards.Count(x => (int) x.Num > 10) > mostFaceCards.Cards.Count(x => (int) x.Num > 10))
+                    mostFaceCards = value;
+
+            currentWinner =
+                mostFaceCards.Cards.Count(x => (int) x.Num > 10) >
+                duplicateScores[currentWinner].Cards.Count(x => (int) x.Num > 10)
+                    ? duplicateScores.First(x => x.Value == mostFaceCards).Key
+                    : currentWinner;
+        }
+
         await ctx.Channel.SendMessageAsync(
             $"I'm pretty sure {currentWinner.DisplayName} won but hey this isnt finished lol");
     }

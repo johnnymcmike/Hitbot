@@ -20,6 +20,9 @@ public class DeckOfCards
             Cards.Add(new PlayingCard {Suit = (CardSuit) i, Num = (CardNumber) j});
     }
 
+    /// <summary>
+    ///     Randomly shuffles the order of elements in Cards.
+    /// </summary>
     public void Shuffle()
     {
         var shuffledcards = Cards.OrderBy(a => rng.Next()).ToList();
