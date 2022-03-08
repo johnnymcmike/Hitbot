@@ -371,7 +371,11 @@ public class GamblingModule : BaseCommandModule
             return;
         }
 
-        if (currentWinner.Equals(ctx.Guild.CurrentMember)) await ctx.Channel.SendMessageAsync("the house won ;)");
+        if (currentWinner.Equals(ctx.Guild.CurrentMember))
+        {
+            await ctx.Channel.SendMessageAsync("the house won ;)");
+            return;
+        }
 
         if (mode == "free" || pot == 0)
         {
