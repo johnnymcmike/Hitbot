@@ -292,14 +292,14 @@ public class GamblingModule : BaseCommandModule
             await ctx.Channel.SendMessageAsync("I stand.");
         //Print out everyone's hands
         await ctx.Channel.SendMessageAsync("-----------------------------------------");
-        var everyhand = "Here's everyone's final hand. Person who started the game has control over the pages.\n";
+        var everyhand = "Here's everyone's final hand. Person who started the game controls pages.\n";
         foreach (var (key, value) in playerHands)
         {
             everyhand += $"---{key.DisplayName} had:\n";
-            everyhand += value + "\n";
+            everyhand += value;
         }
 
-        everyhand += "Dealer had:" + dealerHand;
+        everyhand += "---Dealer had:\n" + dealerHand;
         var pages = interactivity.GeneratePagesInEmbed(everyhand);
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
         //Determine winner
