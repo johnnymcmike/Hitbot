@@ -192,7 +192,8 @@ public class GamblingModule : BaseCommandModule
         //Dictionary where the keys are the DiscordUsers we just got, and the values start as an empty card list
         var playerHands = users.ToDictionary(x => x, _ => new BlackJackHand());
         //Draw for the dealer
-        var dealerHand = new List<PlayingCard>
+        var dealerHand = new BlackJackHand();
+        dealerHand.Cards = new List<PlayingCard>
         {
             deck.DrawCard(),
             deck.DrawCard()
@@ -202,12 +203,12 @@ public class GamblingModule : BaseCommandModule
         {
             value.Cards.Add(deck.DrawCard());
             value.Cards.Add(deck.DrawCard());
-            await key.SendMessageAsync($"Your hand is: {value}");
+            await key.SendMessageAsync($"Your hand is: {value}\n Your hand's value is {value.GetHandValue()}");
         }
 
         //Announce everyone's first card
         var firstCardAnnounce = "Here is everyone's first card:\n";
-        firstCardAnnounce += $"Dealer: {dealerHand[0]}\n";
+        firstCardAnnounce += $"Dealer: {dealerHand.Cards[0]}\n";
         foreach (var (key, value) in playerHands) firstCardAnnounce += $"{key.DisplayName}: {value.Cards[0]}\n";
         await ctx.Channel.SendMessageAsync(firstCardAnnounce);
         //Check for blackjacks
@@ -252,12 +253,12 @@ public class GamblingModule : BaseCommandModule
                 var lala = action.Result.Content.ToLower();
                 if (lala == "hit")
                 {
+                    await ctx.Channel.SendMessageAsync("Hitting...");
                     var drawncard = deck.DrawCard();
                     playerHands[currentPlayer].Cards.Add(drawncard);
                     if (playerHands[currentPlayer].GetHandValue() > 21)
                     {
                         await ctx.Channel.SendMessageAsync("You busted! Next turn...");
-                        playerHands[currentPlayer].Clear();
                         break;
                     }
 
@@ -270,5 +271,53 @@ public class GamblingModule : BaseCommandModule
                 }
             }
         }
+
+        //Play dealer's turn
+        await ctx.Channel.SendMessageAsync("My turn.");
+        var dealerBust = false;
+        while (dealerHand.GetHandValue() < 16)
+        {
+            await ctx.Channel.SendMessageAsync("I'm hitting...");
+            var drawnCard = deck.DrawCard();
+            dealerHand.Cards.Add(drawnCard);
+            if (dealerHand.GetHandValue() > 21)
+            {
+                await ctx.Channel.SendMessageAsync("I busted :(");
+                dealerBust = true;
+                break;
+            }
+        }
+
+        if (!dealerBust)
+            await ctx.Channel.SendMessageAsync("I stand.");
+        //Print out everyone's hands
+        await ctx.Channel.SendMessageAsync("-----------------------------------------");
+        var everyhand = "Here's everyone's final hand. Person who started the game has control over the pages.\n";
+        foreach (var (key, value) in playerHands)
+        {
+            everyhand += $"---{key.DisplayName} had:\n";
+            everyhand += value + "\n";
+        }
+
+        everyhand += "Dealer had:" + dealerHand;
+        var pages = interactivity.GeneratePagesInEmbed(everyhand);
+        await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
+        //Determine winner
+        playerHands.Add(ctx.Guild.CurrentMember, dealerHand);
+        var currentWinner = ctx.Guild.CurrentMember;
+        var duplicateScores = new Dictionary<DiscordMember, BlackJackHand>();
+        foreach (var (dictkey, dictvalue) in playerHands)
+            if (playerHands[currentWinner].GetHandValue() < dictvalue.GetHandValue())
+            {
+                currentWinner = dictkey;
+            }
+            else if (playerHands[currentWinner].GetHandValue() == dictvalue.GetHandValue() &&
+                     dictvalue.GetHandValue() != 0)
+            {
+                duplicateScores.Add(currentWinner, playerHands[currentWinner]);
+                duplicateScores.Add(dictkey, dictvalue);
+            }
+
+        await ctx.Channel.SendMessageAsync($"I'm pretty sure {currentWinner} won but hey this isnt finished lol");
     }
 }
