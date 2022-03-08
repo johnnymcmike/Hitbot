@@ -239,22 +239,22 @@ public class GamblingModule : BaseCommandModule
         foreach (var (key, value) in playerHands) firstCardAnnounce += $"{key.DisplayName}: {value.Cards[0]}\n";
         await ctx.Channel.SendMessageAsync(firstCardAnnounce);
         //Check for blackjacks
-        var blackJackedUsers = new List<DiscordMember>();
-        foreach (var (key, value) in playerHands) //this mess checks if you have a face and an ace with NO tens
-            if (value.Cards.Exists(x => x.BlackJackValue == -1) && !value.Cards.Exists(x => x.Num == CardNumber.Ten) &&
-                value.Cards.Exists(x => x.BlackJackValue == 10))
-            {
-                blackJackedUsers.Add(key);
-                await ctx.Channel.SendMessageAsync($"{key.DisplayName} got a blackjack!");
-            }
-
-        if (blackJackedUsers.Count >= 1)
-        {
-            //TODO: what to do if multiple get blackjack, and implement checking for dealer blackjack
-            await ctx.Channel.SendMessageAsync(
-                "Exiting prematurely because 1 or more users got a blackjack. Remind me to finish this later");
-            return;
-        }
+        // var blackJackedUsers = new List<DiscordMember>();
+        // foreach (var (key, value) in playerHands) //this mess checks if you have a face and an ace with NO tens
+        //     if (value.Cards.Exists(x => x.BlackJackValue == -1) && !value.Cards.Exists(x => x.Num == CardNumber.Ten) &&
+        //         value.Cards.Exists(x => x.BlackJackValue == 10))
+        //     {
+        //         blackJackedUsers.Add(key);
+        //         await ctx.Channel.SendMessageAsync($"{key.DisplayName} got a blackjack!");
+        //     }
+        //
+        // if (blackJackedUsers.Count >= 1)
+        // {
+        //     //TODO: what to do if multiple get blackjack, and implement checking for dealer blackjack
+        //     await ctx.Channel.SendMessageAsync(
+        //         "Exiting prematurely because 1 or more users got a blackjack. Remind me to finish this later");
+        //     return;
+        // }
 
         await ctx.Channel.SendMessageAsync("-----------------------------------------");
 
@@ -378,7 +378,7 @@ public class GamblingModule : BaseCommandModule
         }
         else
         {
-            int payout = (int) (pot * 1.5);
+            int payout = (int) (pot * 1.5 * ((float) bets[currentWinner] / pot));
             Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout + bets[currentWinner]);
             await ctx.Channel.SendMessageAsync(
                 $"{currentWinner.Mention} won, net-gaining {payout} {Econ.Currencyname}!");
