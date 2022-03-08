@@ -207,6 +207,14 @@ public class GamblingModule : BaseCommandModule
             await key.SendMessageAsync($"Your hand is: {value[0]}, {value[1]}");
         }
 
+        //DEBUG
+        usersAndHands[ctx.Member] = new List<PlayingCard>
+        {
+            new() {Suit = CardSuit.Hearts, Num = CardNumber.Ace},
+            new() {Suit = CardSuit.Hearts, Num = CardNumber.King}
+        };
+
+
         //Announce everyone's first card
         var firstCardAnnounce = "Here is everyone's first card:\n";
         firstCardAnnounce += $"Dealer: {dealerHand[0]}\n";
