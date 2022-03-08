@@ -271,10 +271,10 @@ public class GamblingModule : BaseCommandModule
                 var action = await interactivity.WaitForMessageAsync(x => x.Author.Equals(currentPlayer));
                 if (action.TimedOut)
                 {
-                    //TODO: behavior for if turn times out
                     await ctx.Channel.SendMessageAsync(
-                        "Someone's turn timed out, so I'm exiting the whole game. Remind me to fix this.");
-                    return;
+                        "Someone's turn timed out, so we're defaulting to stand.");
+                    turnOver = true;
+                    continue;
                 }
 
                 var lala = action.Result.Content.ToLower();
@@ -371,6 +371,8 @@ public class GamblingModule : BaseCommandModule
             return;
         }
 
+        if (currentWinner.Equals(ctx.Guild.CurrentMember)) await ctx.Channel.SendMessageAsync("the house won ;)");
+
         if (mode == "free" || pot == 0)
         {
             await ctx.Channel.SendMessageAsync(
@@ -378,7 +380,9 @@ public class GamblingModule : BaseCommandModule
         }
         else
         {
-            int payout = (int) (pot * 1.5 * ((float) bets[currentWinner] / pot));
+            int payout =
+                (int) (pot * 1.5 *
+                       ((float) bets[currentWinner] / pot)); //bets[currentWinner] is how much the winner bet
             Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout + bets[currentWinner]);
             await ctx.Channel.SendMessageAsync(
                 $"{currentWinner.Mention} won, net-gaining {payout} {Econ.Currencyname}!");
