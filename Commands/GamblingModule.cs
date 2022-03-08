@@ -303,13 +303,14 @@ public class GamblingModule : BaseCommandModule
         everyhand += "-----------Dealer had:\n" + dealerHand;
         everyhand += $"...with a value of {dealerHand.GetHandValue()}```";
         await ctx.Channel.SendMessageAsync(everyhand);
-        Console.WriteLine("i made it to line 306!");
 
         //Determine winner
         playerHands.Add(ctx.Guild.CurrentMember, dealerHand);
-        var currentWinner = ctx.Guild.CurrentMember;
+        DiscordMember? currentWinner = null;
         var duplicateScores = new Dictionary<DiscordMember, BlackJackHand>();
         foreach (var (dictkey, dictvalue) in playerHands)
+        {
+            currentWinner ??= dictkey; //currentWinner will start out as the "first" key in this dict
             if (playerHands[currentWinner].GetHandValue() < dictvalue.GetHandValue())
             {
                 currentWinner = dictkey;
@@ -320,6 +321,7 @@ public class GamblingModule : BaseCommandModule
                 duplicateScores.Add(currentWinner, playerHands[currentWinner]);
                 duplicateScores.Add(dictkey, dictvalue);
             }
+        }
 
         await ctx.Channel.SendMessageAsync(
             $"I'm pretty sure {currentWinner.DisplayName} won but hey this isnt finished lol");
