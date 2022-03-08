@@ -210,7 +210,7 @@ public class GamblingModule : BaseCommandModule
         //Announce everyone's first card
         var firstCardAnnounce = "Here is everyone's first card:\n";
         firstCardAnnounce += $"Dealer: {dealerHand[0]}\n";
-        foreach (var (key, value) in usersAndHands) firstCardAnnounce += $"{key.DisplayName}: {value[0]}";
+        foreach (var (key, value) in usersAndHands) firstCardAnnounce += $"{key.DisplayName}: {value[0]}\n";
         await ctx.Channel.SendMessageAsync(firstCardAnnounce);
         //Check for blackjacks
         var blackJackedUsers = new List<DiscordMember>();
