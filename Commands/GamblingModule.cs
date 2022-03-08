@@ -277,6 +277,7 @@ public class GamblingModule : BaseCommandModule
         var dealerBust = false;
         while (dealerHand.GetHandValue() < 16)
         {
+            await Task.Delay(500);
             await ctx.Channel.SendMessageAsync("I'm hitting...");
             var drawnCard = deck.DrawCard();
             dealerHand.Cards.Add(drawnCard);
@@ -291,16 +292,15 @@ public class GamblingModule : BaseCommandModule
         if (!dealerBust)
             await ctx.Channel.SendMessageAsync("I stand.");
         //Print out everyone's hands
-        await ctx.Channel.SendMessageAsync("-----------------------------------------");
         var everyhand = "Here's everyone's final hand. Person who started the game controls pages.\n";
         foreach (var (key, value) in playerHands)
         {
-            everyhand += $"---{key.DisplayName} had:\n";
+            everyhand += $"------{key.DisplayName} had:\n";
             everyhand += value;
             everyhand += $"...with a value of {value.GetHandValue()}\n";
         }
 
-        everyhand += "---Dealer had:\n" + dealerHand;
+        everyhand += "------Dealer had:\n" + dealerHand;
         everyhand += $"...with a value of {dealerHand.GetHandValue()}";
         var pages = interactivity.GeneratePagesInEmbed(everyhand);
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
