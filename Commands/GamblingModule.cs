@@ -200,7 +200,7 @@ public class GamblingModule : BaseCommandModule
             deck.DrawCard()
         };
         //Deal first two cards and tell people their hands
-        foreach ((var key, var value) in usersAndHands)
+        foreach (var (key, value) in usersAndHands)
         {
             value.Add(deck.DrawCard());
             value.Add(deck.DrawCard());
@@ -210,8 +210,21 @@ public class GamblingModule : BaseCommandModule
         //Announce everyone's first card
         var firstCardAnnounce = "Here is everyone's first card:\n";
         firstCardAnnounce += $"Dealer: {dealerHand[0]}\n";
-        foreach ((var key, var value) in usersAndHands) firstCardAnnounce += $"{key.DisplayName}: {value[0]}";
-
+        foreach (var (key, value) in usersAndHands) firstCardAnnounce += $"{key.DisplayName}: {value[0]}";
         await ctx.Channel.SendMessageAsync(firstCardAnnounce);
+        //Check for blackjacks
+        var blackJackedUsers = new List<DiscordMember>();
+        foreach (var (key, value) in usersAndHands)
+            if (value.Exists(x => x.BlackJackValue == -1) && !value.Exists(x => x.Num == CardNumber.Ten) &&
+                value.Exists(x => x.BlackJackValue == 10))
+            {
+                blackJackedUsers.Add(key);
+                await ctx.Channel.SendMessageAsync($"{key.DisplayName} got a blackjack!");
+            }
+
+        //Begin turns
+        await ctx.Channel.SendMessageAsync("When it's your turn, say \"hit\" to hit, and \"stand\" to stand.");
+
+        foreach (var player in users) await ctx.Channel.SendMessageAsync($"{player.DisplayName}'s turn!");
     }
 }
