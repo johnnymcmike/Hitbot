@@ -312,13 +312,22 @@ public class GamblingModule : BaseCommandModule
         var duplicateScores = new Dictionary<DiscordMember, BlackJackHand>();
         foreach (var (dictkey, dictvalue) in playerHands)
         {
-            currentWinner ??= dictkey; //currentWinner will start out as the "first" key in this dict
+            var justSet = false;
+            if (dictvalue.GetHandValue() > 21)
+                continue;
+
+            if (currentWinner is null)
+            {
+                currentWinner = dictkey;
+                justSet = true;
+            }
+
             if (playerHands[currentWinner].GetHandValue() < dictvalue.GetHandValue())
             {
                 currentWinner = dictkey;
+                justSet = true;
             }
-            else if (playerHands[currentWinner].GetHandValue() == dictvalue.GetHandValue() &&
-                     dictvalue.GetHandValue() <= 21)
+            else if (playerHands[currentWinner].GetHandValue() == dictvalue.GetHandValue() && !justSet)
             {
                 duplicateScores.Add(currentWinner, playerHands[currentWinner]);
                 duplicateScores.Add(dictkey, dictvalue);
