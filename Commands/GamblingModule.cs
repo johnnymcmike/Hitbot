@@ -316,7 +316,7 @@ public class GamblingModule : BaseCommandModule
                 currentWinner = dictkey;
             }
             else if (playerHands[currentWinner].GetHandValue() == dictvalue.GetHandValue() &&
-                     dictvalue.GetHandValue() != 0)
+                     dictvalue.GetHandValue() <= 21)
             {
                 duplicateScores.Add(currentWinner, playerHands[currentWinner]);
                 duplicateScores.Add(dictkey, dictvalue);
