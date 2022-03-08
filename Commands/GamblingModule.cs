@@ -2,7 +2,6 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
-using DSharpPlus.Interactivity.EventHandling;
 using DSharpPlus.Interactivity.Extensions;
 using Hitbot.Services;
 using Hitbot.Types;
@@ -162,35 +161,63 @@ public class GamblingModule : BaseCommandModule
     }
 
     [Command("blackjack")]
-    public async Task BlackJackCommand(CommandContext ctx)
+    [Description("")]
+    public async Task BlackJackCommand(CommandContext ctx, string mode = "free")
     {
         var interactivity = ctx.Client.GetInteractivity();
-        DiscordEmoji diamondemoji = DiscordEmoji.FromName(ctx.Client, ":diamonds:");
+        var myemoji = DiscordEmoji.FromName(ctx.Client, ":black_joker:");
         DiscordMessage entrymsg = await
-            ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
-                                         $"{diamondemoji} within 20 seconds to enter.");
-        await entrymsg.CreateReactionAsync(diamondemoji);
+            ctx.Channel.SendMessageAsync($"A {mode} game of blackjack is starting! React " +
+                                         $"{myemoji} within 20 seconds to enter.");
+        await entrymsg.CreateReactionAsync(myemoji);
 
         var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
-        var users = new List<DiscordMember>();
-        foreach (Reaction? reactionObject in reactions)
+        var players = new List<DiscordMember>();
+        foreach (var reactionObject in reactions)
         {
-            DiscordUser? reactedUser = reactionObject.Users.First();
+            var reactedUser = reactionObject.Users.First();
             if (!reactedUser.Equals(ctx.Client.CurrentUser))
-                users.Add((DiscordMember) reactedUser);
+                players.Add((DiscordMember) reactedUser);
         }
 
-        if (users.Count == 0)
+        if (players.Count == 0)
         {
             await ctx.RespondAsync("Timed out.");
             return;
+        }
+
+        var bets = new Dictionary<DiscordUser, int>();
+        int pot = 0;
+        if (mode != "free")
+        {
+            await ctx.Channel.SendMessageAsync("Getting everyone's bets...");
+            foreach (var currentPlayer in players)
+            {
+                int thisBet = 0;
+                await ctx.Channel.SendMessageAsync($"{currentPlayer.Mention}, what's your bet?");
+                var action = await interactivity.WaitForMessageAsync(x =>
+                    x.Author.Equals(currentPlayer) && int.TryParse(x.Content, out thisBet));
+                if (action.TimedOut) await ctx.Channel.SendMessageAsync("Timed out, defaulting to 0.");
+
+                if (thisBet > Econ.BookGet(Program.GetBalancebookString(currentPlayer)))
+                {
+                    thisBet = Econ.BookGet(Program.GetBalancebookString(currentPlayer));
+                    await ctx.Channel.SendMessageAsync(
+                        $"You tried to bet more than you have, so you'll be betting {thisBet} {Econ.Currencyname}, which is all you have. :)");
+                }
+
+                bets.Add(currentPlayer, thisBet);
+                Econ.BookDecr(Program.GetBalancebookString(currentPlayer), thisBet);
+            }
+
+            pot += bets.Sum(x => x.Value);
         }
 
         var deck = new DeckOfCards();
         deck.Shuffle();
 
         //Dictionary where the keys are the DiscordUsers we just got, and the values start as an empty card list
-        var playerHands = users.ToDictionary(x => x, _ => new BlackJackHand());
+        var playerHands = players.ToDictionary(x => x, _ => new BlackJackHand());
         //Draw for the dealer
         var dealerHand = new BlackJackHand();
         dealerHand.Cards = new List<PlayingCard>
@@ -233,7 +260,7 @@ public class GamblingModule : BaseCommandModule
 
         //Begin turns
         await ctx.Channel.SendMessageAsync("When it's your turn, say \"hit\" to hit, and \"stand\" to stand.");
-        foreach (var currentPlayer in users)
+        foreach (var currentPlayer in players)
         {
             var turnOver = false;
             await ctx.Channel.SendMessageAsync($"{currentPlayer.DisplayName}'s turn!");
@@ -334,23 +361,26 @@ public class GamblingModule : BaseCommandModule
             }
         }
 
-        //TODO: WARNING: AI GENERATED CODE
-        //Determine which hand in duplicateScores has the most face cards (cards with a Num of greater than 10)
-        if (duplicateScores.ContainsKey(currentWinner))
+        // if (duplicateScores.Count > 1)
+        // {
+        //     
+        // }
+        if (currentWinner is null)
         {
-            var mostFaceCards = duplicateScores[currentWinner];
-            foreach (var (key, value) in duplicateScores)
-                if (value.Cards.Count(x => (int) x.Num > 10) > mostFaceCards.Cards.Count(x => (int) x.Num > 10))
-                    mostFaceCards = value;
-
-            currentWinner =
-                mostFaceCards.Cards.Count(x => (int) x.Num > 10) >
-                duplicateScores[currentWinner].Cards.Count(x => (int) x.Num > 10)
-                    ? duplicateScores.First(x => x.Value == mostFaceCards).Key
-                    : currentWinner;
+            await ctx.Channel.SendMessageAsync("nobody won lol");
+            return;
         }
 
-        await ctx.Channel.SendMessageAsync(
-            $"I'm pretty sure {currentWinner.DisplayName} won but hey this isnt finished lol");
+        if (mode == "free" || pot == 0)
+        {
+            await ctx.Channel.SendMessageAsync(
+                $"{currentWinner.Mention} won! :)");
+        }
+        else
+        {
+            int payout = 3 * bets[currentWinner] / (2 * pot);
+            Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout);
+            await ctx.Channel.SendMessageAsync($"{currentWinner.Mention} won, gaining {payout} {Econ.Currencyname}!");
+        }
     }
 }
