@@ -296,12 +296,12 @@ public class GamblingModule : BaseCommandModule
         foreach (var (key, value) in playerHands)
         {
             everyhand += $"---{key.DisplayName} had:\n";
-            everyhand += value + "\n";
-            everyhand += $"With value of {value.GetHandValue()}";
+            everyhand += value;
+            everyhand += $"...with a value of {value.GetHandValue()}\n";
         }
 
         everyhand += "---Dealer had:\n" + dealerHand;
-        everyhand += $"With value of {dealerHand.GetHandValue()}";
+        everyhand += $"...with a value of {dealerHand.GetHandValue()}";
         var pages = interactivity.GeneratePagesInEmbed(everyhand);
         await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages);
         //Determine winner
