@@ -164,6 +164,7 @@ public class GamblingModule : BaseCommandModule
     [Command("blackjack")]
     public async Task BlackJackCommand(CommandContext ctx)
     {
+        var interactivity = ctx.Client.GetInteractivity();
         DiscordEmoji diamondemoji = DiscordEmoji.FromName(ctx.Client, ":diamonds:");
         DiscordMessage entrymsg = await
             ctx.Channel.SendMessageAsync("Blackjack is starting! React " +
@@ -185,14 +186,11 @@ public class GamblingModule : BaseCommandModule
             return;
         }
 
-        //DEBUG
-        foreach (DiscordMember VARIABLE in users) Console.WriteLine(VARIABLE);
-
         var deck = new DeckOfCards();
         deck.Shuffle();
 
         //Dictionary where the keys are the DiscordUsers we just got, and the values start as an empty card list
-        var usersAndHands = users.ToDictionary(x => x, _ => new List<PlayingCard>());
+        var playerHands = users.ToDictionary(x => x, _ => new BlackJackHand());
         //Draw for the dealer
         var dealerHand = new List<PlayingCard>
         {
@@ -200,39 +198,77 @@ public class GamblingModule : BaseCommandModule
             deck.DrawCard()
         };
         //Deal first two cards and tell people their hands
-        foreach (var (key, value) in usersAndHands)
+        foreach (var (key, value) in playerHands)
         {
-            value.Add(deck.DrawCard());
-            value.Add(deck.DrawCard());
-            await key.SendMessageAsync($"Your hand is: {value[0]}, {value[1]}");
+            value.Cards.Add(deck.DrawCard());
+            value.Cards.Add(deck.DrawCard());
+            await key.SendMessageAsync($"Your hand is: {value}");
         }
-
-        //DEBUG
-        usersAndHands[ctx.Member] = new List<PlayingCard>
-        {
-            new() {Suit = CardSuit.Hearts, Num = CardNumber.Ace},
-            new() {Suit = CardSuit.Hearts, Num = CardNumber.King}
-        };
-
 
         //Announce everyone's first card
         var firstCardAnnounce = "Here is everyone's first card:\n";
         firstCardAnnounce += $"Dealer: {dealerHand[0]}\n";
-        foreach (var (key, value) in usersAndHands) firstCardAnnounce += $"{key.DisplayName}: {value[0]}\n";
+        foreach (var (key, value) in playerHands) firstCardAnnounce += $"{key.DisplayName}: {value.Cards[0]}\n";
         await ctx.Channel.SendMessageAsync(firstCardAnnounce);
         //Check for blackjacks
         var blackJackedUsers = new List<DiscordMember>();
-        foreach (var (key, value) in usersAndHands)
-            if (value.Exists(x => x.BlackJackValue == -1) && !value.Exists(x => x.Num == CardNumber.Ten) &&
-                value.Exists(x => x.BlackJackValue == 10))
+        foreach (var (key, value) in playerHands) //this mess checks if you have a face and an ace with NO tens
+            if (value.Cards.Exists(x => x.BlackJackValue == -1) && !value.Cards.Exists(x => x.Num == CardNumber.Ten) &&
+                value.Cards.Exists(x => x.BlackJackValue == 10))
             {
                 blackJackedUsers.Add(key);
                 await ctx.Channel.SendMessageAsync($"{key.DisplayName} got a blackjack!");
             }
 
+        if (blackJackedUsers.Count >= 1)
+        {
+            //TODO: what to do if multiple get blackjack, and implement checking for dealer blackjack
+            await ctx.Channel.SendMessageAsync(
+                "Exiting prematurely because 1 or more users got a blackjack. Remind me to finish this later");
+            return;
+        }
+
+        await ctx.Channel.SendMessageAsync("-----------------------------------------");
+
         //Begin turns
         await ctx.Channel.SendMessageAsync("When it's your turn, say \"hit\" to hit, and \"stand\" to stand.");
+        foreach (var currentPlayer in users)
+        {
+            var turnOver = false;
+            await ctx.Channel.SendMessageAsync($"{currentPlayer.DisplayName}'s turn!");
 
-        foreach (var player in users) await ctx.Channel.SendMessageAsync($"{player.DisplayName}'s turn!");
+            while (!turnOver)
+            {
+                //TODO: change this predicate such that it only accepts hit and stand or else it times out
+                var action = await interactivity.WaitForMessageAsync(x => x.Author.Equals(currentPlayer));
+                if (action.TimedOut)
+                {
+                    //TODO: behavior for if turn times out
+                    await ctx.Channel.SendMessageAsync(
+                        "Someone's turn timed out, so I'm exiting the whole game. Remind me to fix this.");
+                    return;
+                }
+
+                var lala = action.Result.Content.ToLower();
+                if (lala == "hit")
+                {
+                    var drawncard = deck.DrawCard();
+                    playerHands[currentPlayer].Cards.Add(drawncard);
+                    if (playerHands[currentPlayer].GetHandValue() > 21)
+                    {
+                        await ctx.Channel.SendMessageAsync("You busted! Next turn...");
+                        playerHands[currentPlayer].Clear();
+                        break;
+                    }
+
+                    await currentPlayer.SendMessageAsync(
+                        $"You got the {drawncard}. Your new hand value is {playerHands[currentPlayer].GetHandValue()}.");
+                }
+                else if (lala == "stand")
+                {
+                    turnOver = true;
+                }
+            }
+        }
     }
 }
