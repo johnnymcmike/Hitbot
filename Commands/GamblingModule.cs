@@ -272,13 +272,14 @@ public class GamblingModule : BaseCommandModule
             }
         }
 
+        await Task.Delay(2000);
         //Play dealer's turn
         await ctx.Channel.SendMessageAsync("My turn.");
         var dealerBust = false;
         while (dealerHand.GetHandValue() < 16)
         {
-            await Task.Delay(500);
             await ctx.Channel.SendMessageAsync("I'm hitting...");
+            await Task.Delay(1000);
             var drawnCard = deck.DrawCard();
             dealerHand.Cards.Add(drawnCard);
             if (dealerHand.GetHandValue() > 21)
@@ -291,6 +292,7 @@ public class GamblingModule : BaseCommandModule
 
         if (!dealerBust)
             await ctx.Channel.SendMessageAsync("I stand.");
+        await Task.Delay(2000);
         //Print out everyone's hands
         var everyhand = "```Here's everyone's final hand.\n";
         foreach (var (key, value) in playerHands)
@@ -303,7 +305,7 @@ public class GamblingModule : BaseCommandModule
         everyhand += "-----------Dealer had:\n" + dealerHand;
         everyhand += $"...with a value of {dealerHand.GetHandValue()}```";
         await ctx.Channel.SendMessageAsync(everyhand);
-
+        await Task.Delay(2000);
         //Determine winner
         playerHands.Add(ctx.Guild.CurrentMember, dealerHand);
         DiscordMember? currentWinner = null;
