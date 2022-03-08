@@ -26,10 +26,10 @@ public class DeckOfCards
         Cards = shuffledcards;
     }
 
-    public PlayingCard? DrawCard()
+    public PlayingCard DrawCard()
     {
         if (Cards.Count == 0)
-            return null;
+            throw new Exception("Tried to draw from an empty deck of cards.");
 
         PlayingCard result = Cards[0];
         Cards.RemoveAt(0);

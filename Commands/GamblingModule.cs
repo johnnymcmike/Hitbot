@@ -191,13 +191,27 @@ public class GamblingModule : BaseCommandModule
         var deck = new DeckOfCards();
         deck.Shuffle();
 
+        //Dictionary where the keys are the DiscordUsers we just got, and the values start as an empty card list
         var usersAndHands = users.ToDictionary(x => x, _ => new List<PlayingCard>());
-
-        foreach (var wa in usersAndHands)
+        //Draw for the dealer
+        var dealerHand = new List<PlayingCard>
         {
-            wa.Value.Add(deck.DrawCard());
-            wa.Value.Add(deck.DrawCard());
-            await wa.Key.SendMessageAsync($"Your hand is: {wa.Value[0]}, {wa.Value[1]}");
+            deck.DrawCard(),
+            deck.DrawCard()
+        };
+        //Deal first two cards and tell people their hands
+        foreach ((var key, var value) in usersAndHands)
+        {
+            value.Add(deck.DrawCard());
+            value.Add(deck.DrawCard());
+            await key.SendMessageAsync($"Your hand is: {value[0]}, {value[1]}");
         }
+
+        //Announce everyone's first card
+        var firstCardAnnounce = "Here is everyone's first card:\n";
+        firstCardAnnounce += $"Dealer: {dealerHand[0]}\n";
+        foreach ((var key, var value) in usersAndHands) firstCardAnnounce += $"{key.DisplayName}: {value[0]}";
+
+        await ctx.Channel.SendMessageAsync(firstCardAnnounce);
     }
 }
