@@ -259,6 +259,8 @@ public class GamblingModule : BaseCommandModule
         await ctx.Channel.SendMessageAsync("-----------------------------------------");
 
         //Begin turns
+        string[] possibleActions = {"hit", "stand"};
+
         await ctx.Channel.SendMessageAsync("When it's your turn, say \"hit\" to hit, and \"stand\" to stand.");
         foreach (var currentPlayer in players)
         {
@@ -268,7 +270,8 @@ public class GamblingModule : BaseCommandModule
             while (!turnOver)
             {
                 //TODO: change this predicate such that it only accepts hit and stand or else it times out
-                var action = await interactivity.WaitForMessageAsync(x => x.Author.Equals(currentPlayer));
+                var action = await interactivity.WaitForMessageAsync(x =>
+                    x.Author.Equals(currentPlayer) && possibleActions.Contains(x.Content.ToLower()));
                 if (action.TimedOut)
                 {
                     await ctx.Channel.SendMessageAsync(
@@ -277,7 +280,7 @@ public class GamblingModule : BaseCommandModule
                     continue;
                 }
 
-                var lala = action.Result.Content.ToLower();
+                string lala = action.Result.Content.ToLower();
                 if (lala == "hit")
                 {
                     await ctx.Channel.SendMessageAsync("Hitting...");
@@ -385,8 +388,7 @@ public class GamblingModule : BaseCommandModule
         else
         {
             int payout =
-                (int) (pot * 1.5 *
-                       ((float) bets[currentWinner] / pot)); //bets[currentWinner] is how much the winner bet
+                (int) (pot * 1.5 * ((float) bets[currentWinner] / pot));
             Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout + bets[currentWinner]);
             await ctx.Channel.SendMessageAsync(
                 $"{currentWinner.Mention} won, net-gaining {payout} {Econ.Currencyname}!");
