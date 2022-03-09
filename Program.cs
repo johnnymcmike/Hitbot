@@ -53,7 +53,7 @@ internal class Program
         discord.GetCommandsNext().CommandErrored += async (s, e) =>
         {
             Console.WriteLine("Command errored:");
-            Console.WriteLine(e);
+            Console.WriteLine(e.Exception);
         };
         commands.RegisterCommands(Assembly.GetExecutingAssembly());
 
