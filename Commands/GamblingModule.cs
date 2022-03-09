@@ -387,10 +387,10 @@ public class GamblingModule : BaseCommandModule
         else
         {
             int payout =
-                (int) (pot * ((float) bets[currentWinner] / pot));
-            Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout + bets[currentWinner]);
+                (int) (pot * ((float) bets[currentWinner] / pot) * 2);
+            Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout);
             await ctx.Channel.SendMessageAsync(
-                $"{currentWinner.Mention} won, net-gaining {payout} {Econ.Currencyname}!");
+                $"{currentWinner.Mention} won, net-gaining {payout - bets[currentWinner]} {Econ.Currencyname}!");
         }
     }
 }
