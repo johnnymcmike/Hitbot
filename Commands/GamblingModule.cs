@@ -269,7 +269,6 @@ public class GamblingModule : BaseCommandModule
 
             while (!turnOver)
             {
-                //TODO: change this predicate such that it only accepts hit and stand or else it times out
                 var action = await interactivity.WaitForMessageAsync(x =>
                     x.Author.Equals(currentPlayer) && possibleActions.Contains(x.Content.ToLower()));
                 if (action.TimedOut)
@@ -388,7 +387,7 @@ public class GamblingModule : BaseCommandModule
         else
         {
             int payout =
-                (int) (pot * 1.5 * ((float) bets[currentWinner] / pot));
+                (int) (pot * ((float) bets[currentWinner] / pot));
             Econ.BookIncr(Program.GetBalancebookString(currentWinner), payout + bets[currentWinner]);
             await ctx.Channel.SendMessageAsync(
                 $"{currentWinner.Mention} won, net-gaining {payout} {Econ.Currencyname}!");
