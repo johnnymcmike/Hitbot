@@ -161,7 +161,8 @@ public class GamblingModule : BaseCommandModule
     }
 
     [Command("blackjack")]
-    [Description("")]
+    [Description(
+        "A text-based Blackjack game, optionally including bets and multiplayer. Pays 2 to 1. Dealer draws to 16.")]
     public async Task BlackJackCommand(CommandContext ctx, string mode = "free")
     {
         var interactivity = ctx.Client.GetInteractivity();
@@ -198,7 +199,7 @@ public class GamblingModule : BaseCommandModule
                 var action = await interactivity.WaitForMessageAsync(x =>
                     x.Author.Equals(currentPlayer) && int.TryParse(x.Content, out thisBet));
                 if (action.TimedOut) await ctx.Channel.SendMessageAsync("Timed out, defaulting to 0.");
-
+                thisBet = Math.Abs(thisBet);
                 if (thisBet > Econ.BookGet(Program.GetBalancebookString(currentPlayer)))
                 {
                     thisBet = Econ.BookGet(Program.GetBalancebookString(currentPlayer));
