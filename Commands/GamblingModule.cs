@@ -386,7 +386,10 @@ public class GamblingModule : BaseCommandModule
                         if (!winner.Equals(ctx.Guild.CurrentMember))
                             Econ.BookIncr(Program.GetBalancebookString(winner),
                                 (int) (2 * pot * ((float) bets[winner] / pot)));
+                    return;
                 }
+
+            currentWinner = realWinner;
         }
 
         if (currentWinner.Equals(ctx.Guild.CurrentMember))
