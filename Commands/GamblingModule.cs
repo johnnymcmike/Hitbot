@@ -241,7 +241,7 @@ public class GamblingModule : BaseCommandModule
         //Check for blackjacks
         // var blackJackedUsers = new List<DiscordMember>();
         // foreach (var (key, value) in playerHands) //this mess checks if you have a face and an ace with NO tens
-        //     if (value.Cards.Exists(x => x.BlackJackValue == -1) && !value.Cards.Exists(x => x.Num == CardNumber.Ten) &&
+        //     if (value.Cards.Exists(x => x.BlackJackValue == 1) && !value.Cards.Exists(x => x.Num == CardNumber.Ten) &&
         //         value.Cards.Exists(x => x.BlackJackValue == 10))
         //     {
         //         blackJackedUsers.Add(key);
@@ -323,7 +323,7 @@ public class GamblingModule : BaseCommandModule
             await ctx.Channel.SendMessageAsync("I stand.");
         await Task.Delay(2000);
         //Print out everyone's hands
-        var everyhand = "```Here's everyone's final hand.\n";
+        string everyhand = "```Here's everyone's final hand.\n";
         foreach (var (key, value) in playerHands)
         {
             everyhand += $"-----------{key.DisplayName} had:\n";
@@ -341,7 +341,7 @@ public class GamblingModule : BaseCommandModule
         var duplicateScores = new Dictionary<DiscordMember, BlackJackHand>();
         foreach (var (dictkey, dictvalue) in playerHands)
         {
-            var justSet = false;
+            bool justSet = false;
             if (dictvalue.GetHandValue() > 21)
                 continue;
 
@@ -358,19 +358,35 @@ public class GamblingModule : BaseCommandModule
             }
             else if (playerHands[currentWinner].GetHandValue() == dictvalue.GetHandValue() && !justSet)
             {
-                duplicateScores.Add(currentWinner, playerHands[currentWinner]);
-                duplicateScores.Add(dictkey, dictvalue);
+                if (!duplicateScores.ContainsKey(currentWinner))
+                    duplicateScores.Add(currentWinner, playerHands[currentWinner]);
+                if (!duplicateScores.ContainsKey(dictkey))
+                    duplicateScores.Add(dictkey, dictvalue);
             }
         }
 
-        // if (duplicateScores.Count > 1)
-        // {
-        //     
-        // }
         if (currentWinner is null)
         {
             await ctx.Channel.SendMessageAsync("nobody won lol");
             return;
+        }
+
+        if (duplicateScores.Count > 1 && duplicateScores.ContainsKey(currentWinner))
+        {
+            var realWinner = currentWinner;
+            foreach (var (key, value) in duplicateScores)
+                if (value.GetHandWeight() > duplicateScores[realWinner].GetHandWeight())
+                {
+                    realWinner = key;
+                }
+                else if (value.GetHandWeight() == duplicateScores[realWinner].GetHandWeight())
+                {
+                    await ctx.Channel.SendMessageAsync("There was a *true* tie, so all tied players win.");
+                    foreach (var (winner, _) in duplicateScores)
+                        if (!winner.Equals(ctx.Guild.CurrentMember))
+                            Econ.BookIncr(Program.GetBalancebookString(winner),
+                                (int) (2 * pot * ((float) bets[winner] / pot)));
+                }
         }
 
         if (currentWinner.Equals(ctx.Guild.CurrentMember))

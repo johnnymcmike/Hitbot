@@ -11,11 +11,11 @@ public class BlackJackHand
 
     public int GetHandValue()
     {
-        var val = 0;
+        int val = 0;
         var aces = new List<PlayingCard>();
         foreach (var card in Cards)
         {
-            if (card.BlackJackValue == -1)
+            if (card.BlackJackValue == 1)
             {
                 aces.Add(card);
                 continue;
@@ -29,6 +29,22 @@ public class BlackJackHand
                 val += 1;
             else
                 val += 11;
+
+        return val;
+    }
+
+    /// <summary>
+    ///     Gets the "weight" of the hand for the purpose of breaking ties. Aces are always worth 11.
+    /// </summary>
+    /// <returns></returns>
+    public int GetHandWeight()
+    {
+        int val = 0;
+        foreach (var card in Cards)
+            if (card.Num == CardNumber.Ace)
+                val += 11;
+            else
+                val += (int) card.Num;
 
         return val;
     }

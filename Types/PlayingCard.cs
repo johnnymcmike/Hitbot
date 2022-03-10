@@ -11,8 +11,7 @@ public class PlayingCard
         {
             if ((int) Num > 10)
                 return 10;
-            if (Num == CardNumber.Ace)
-                return -1;
+
             return (int) Num;
         }
     }
