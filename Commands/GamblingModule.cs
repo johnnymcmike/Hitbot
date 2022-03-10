@@ -172,7 +172,7 @@ public class GamblingModule : BaseCommandModule
         await entrymsg.CreateReactionAsync(myemoji);
 
         var reactions = await entrymsg.CollectReactionsAsync(TimeSpan.FromSeconds(20));
-        var players = new List<DiscordMember>();
+        var players = new HashSet<DiscordMember>();
         foreach (var reactionObject in reactions)
         {
             var reactedUser = reactionObject.Users.First();
