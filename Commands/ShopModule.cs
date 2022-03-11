@@ -52,7 +52,7 @@ public class ShopModule : BaseCommandModule
         byte[] imageData;
         using (var wc = new WebClient())
         {
-            imageData = wc.DownloadData(image.Url);
+            imageData = wc.DownloadData(image.ProxyUrl);
         }
 
         var ms = new MemoryStream(imageData);
