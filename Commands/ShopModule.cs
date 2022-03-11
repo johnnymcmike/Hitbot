@@ -48,15 +48,18 @@ public class ShopModule : BaseCommandModule
         }
 
         //if all the above checks passed:
-        Stream imageData;
+        byte[] imageData;
         using (var wc = new HttpClient())
         {
-            imageData = await wc.GetStreamAsync(image.Url);
+            imageData = await wc.GetByteArrayAsync(image.Url);
         }
+
+        Stream ms = new MemoryStream(imageData);
+
 
         // await ctx.Guild.DeleteEmojiAsync(
         //     DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
-        await ctx.Guild.CreateEmojiAsync(":botemoji:", imageData);
+        await ctx.Guild.CreateEmojiAsync(":botemoji:", ms);
         await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":botemoji:"));
     }
 }
