@@ -61,9 +61,9 @@ public class ShopModule : BaseCommandModule
             ms.Position = 0;
 
             // await ctx.Guild.DeleteEmojiAsync(
-            //     DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
-            await ctx.Guild.CreateEmojiAsync(":botemoji:", ms);
-            await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":botemoji:"));
+            //     DiscordEmoji.FromName(ctx.Client, "botemoji") as DiscordGuildEmoji); //TODO: seems bad
+            await ctx.Guild.CreateEmojiAsync("botemoji", ms);
+            await ctx.RespondAsync($"{DiscordEmoji.FromName(ctx.Client, ":botemoji:")} :)");
             Econ.BookDecr(callerstring, 200);
         }
         catch (BadRequestException e)
@@ -72,7 +72,7 @@ public class ShopModule : BaseCommandModule
             Console.WriteLine("-------------e.Errors:");
             Console.WriteLine(e.Errors);
             Console.WriteLine("-------------e.InnerException:");
-            Console.WriteLine(e.InnerException);
+            Console.WriteLine(e.JsonMessage);
         }
     }
 }
