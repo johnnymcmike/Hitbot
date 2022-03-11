@@ -59,7 +59,7 @@ public class ShopModule : BaseCommandModule
             }
 
             // Stream ms = new MemoryStream(imageData);
-            ms.Position = 0;
+            // ms.Position = 0;
 
             // await ctx.Guild.DeleteEmojiAsync(
             //     DiscordEmoji.FromName(ctx.Client, "botemoji") as DiscordGuildEmoji); //TODO: seems bad
