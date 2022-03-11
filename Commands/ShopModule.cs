@@ -53,9 +53,9 @@ public class ShopModule : BaseCommandModule
         {
             byte[] imageData;
             Stream ms;
-            using (var wc = new HttpClient())
+            using (var http = new HttpClient())
             {
-                ms = await wc.GetStreamAsync(myAttachment.Url);
+                ms = await (await http.GetAsync(myAttachment.Url)).Content.ReadAsStreamAsync();
             }
 
             // Stream ms = new MemoryStream(imageData);
