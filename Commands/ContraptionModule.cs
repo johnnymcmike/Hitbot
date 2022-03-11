@@ -1,26 +1,34 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using Hitbot.Services;
-using StackExchange.Redis;
 
 namespace Hitbot.Commands;
 
 [Group("contraption")]
+[Hidden]
 [RequireGuild]
-public class ContraptionModule
+public class ContraptionModule : BaseCommandModule
 {
     private EconManager Econ { get; }
-    private IDatabase db;
+    private ContraptionManager Contraption { get; }
 
-    public ContraptionModule(EconManager eco, ConnectionMultiplexer redis)
+    public ContraptionModule(EconManager eco, ContraptionManager cont)
     {
         Econ = eco;
-        db = redis.GetDatabase();
+        Contraption = cont;
     }
 
     [Command("feed")]
     [Description("Feed the contraption your riches. Who knows what may come...")]
     public async Task FeedCommand(CommandContext ctx, int amount)
     {
+        string callerstring = Program.GetBalancebookString(ctx.Member);
+        if (amount > Econ.BookGet(callerstring))
+        {
+            await ctx.RespondAsync("Insufficient funds.");
+            return;
+        }
+
+        Econ.BookDecr(callerstring, amount);
     }
 }
