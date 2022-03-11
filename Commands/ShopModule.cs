@@ -55,7 +55,7 @@ public class ShopModule : BaseCommandModule
         }
 
         await ctx.Guild.DeleteEmojiAsync(
-            DiscordEmoji.FromName(ctx.Client, "botemoji") as DiscordGuildEmoji); //TODO: seems bad
+            DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
         await ctx.Guild.CreateEmojiAsync("botemoji", ms);
         await ctx.RespondAsync($"{DiscordEmoji.FromName(ctx.Client, ":botemoji:")} :)");
         Econ.BookDecr(callerstring, 200);
