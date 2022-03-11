@@ -33,15 +33,15 @@ public class ShopModule : BaseCommandModule
             return;
         }
 
-        var image = attach[0];
+        var myAttachment = attach[0];
 
-        if (image.MediaType is not ("image/png" or "image/jpeg" or "image/jpg"))
+        if (myAttachment.MediaType is not ("image/png" or "image/jpeg" or "image/jpg"))
         {
             await ctx.RespondAsync(".PNG, .JPEG, and .JPG image files only.");
             return;
         }
 
-        if (image.FileSize > 250000) //not positive on whether this is right so it's a lowball on purpose
+        if (myAttachment.FileSize > 250000) //not positive on whether this is right so it's a lowball on purpose
         {
             await ctx.RespondAsync("File too big.");
             return;
@@ -51,11 +51,11 @@ public class ShopModule : BaseCommandModule
         byte[] imageData;
         using (var wc = new HttpClient())
         {
-            imageData = await wc.GetByteArrayAsync(image.Url);
+            imageData = await wc.GetByteArrayAsync(myAttachment.Url);
         }
 
         Stream ms = new MemoryStream(imageData);
-
+        ms.Position = 0;
 
         // await ctx.Guild.DeleteEmojiAsync(
         //     DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
