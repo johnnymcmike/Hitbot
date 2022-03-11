@@ -1,7 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.Exceptions;
 using Hitbot.Services;
 
 namespace Hitbot.Commands;
@@ -49,31 +48,16 @@ public class ShopModule : BaseCommandModule
         }
 
         //if all the above checks passed:
-        try
+        Stream ms;
+        using (var http = new HttpClient())
         {
-            byte[] imageData;
-            Stream ms;
-            using (var http = new HttpClient())
-            {
-                ms = await (await http.GetAsync(myAttachment.Url)).Content.ReadAsStreamAsync();
-            }
-
-            // Stream ms = new MemoryStream(imageData);
-            // ms.Position = 0;
-
-            // await ctx.Guild.DeleteEmojiAsync(
-            //     DiscordEmoji.FromName(ctx.Client, "botemoji") as DiscordGuildEmoji); //TODO: seems bad
-            await ctx.Guild.CreateEmojiAsync("botemoji", ms);
-            await ctx.RespondAsync($"{DiscordEmoji.FromName(ctx.Client, ":botemoji:")} :)");
-            Econ.BookDecr(callerstring, 200);
+            ms = await (await http.GetAsync(myAttachment.Url)).Content.ReadAsStreamAsync();
         }
-        catch (BadRequestException e)
-        {
-            Console.WriteLine("-------------ERROR STUFF:");
-            Console.WriteLine("-------------e.Errors:");
-            Console.WriteLine(e.Errors);
-            Console.WriteLine("-------------e.InnerException:");
-            Console.WriteLine(e.JsonMessage);
-        }
+
+        await ctx.Guild.DeleteEmojiAsync(
+            DiscordEmoji.FromName(ctx.Client, "botemoji") as DiscordGuildEmoji); //TODO: seems bad
+        await ctx.Guild.CreateEmojiAsync("botemoji", ms);
+        await ctx.RespondAsync($"{DiscordEmoji.FromName(ctx.Client, ":botemoji:")} :)");
+        Econ.BookDecr(callerstring, 200);
     }
 }
