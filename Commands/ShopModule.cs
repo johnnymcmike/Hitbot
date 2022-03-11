@@ -1,5 +1,4 @@
-﻿using System.Net;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Hitbot.Services;
@@ -49,17 +48,15 @@ public class ShopModule : BaseCommandModule
         }
 
         //if all the above checks passed:
-        byte[] imageData;
-        using (var wc = new WebClient())
+        Stream imageData;
+        using (var wc = new HttpClient())
         {
-            imageData = wc.DownloadData(image.ProxyUrl);
+            imageData = await wc.GetStreamAsync(image.Url);
         }
-
-        var ms = new MemoryStream(imageData);
 
         // await ctx.Guild.DeleteEmojiAsync(
         //     DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
-        await ctx.Guild.CreateEmojiAsync(":botemoji:", ms);
+        await ctx.Guild.CreateEmojiAsync(":botemoji:", imageData);
         await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":botemoji:"));
     }
 }
