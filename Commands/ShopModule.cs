@@ -52,12 +52,13 @@ public class ShopModule : BaseCommandModule
         try
         {
             byte[] imageData;
+            Stream ms;
             using (var wc = new HttpClient())
             {
-                imageData = await wc.GetByteArrayAsync(myAttachment.Url);
+                ms = await wc.GetStreamAsync(myAttachment.Url);
             }
 
-            Stream ms = new MemoryStream(imageData);
+            // Stream ms = new MemoryStream(imageData);
             ms.Position = 0;
 
             // await ctx.Guild.DeleteEmojiAsync(
