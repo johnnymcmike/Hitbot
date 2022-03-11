@@ -57,8 +57,8 @@ public class ShopModule : BaseCommandModule
 
         var ms = new MemoryStream(imageData);
 
-        await ctx.Guild.DeleteEmojiAsync(
-            DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
+        // await ctx.Guild.DeleteEmojiAsync(
+        //     DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji); //TODO: seems bad
         await ctx.Guild.CreateEmojiAsync(":botemoji:", ms);
         await ctx.RespondAsync(DiscordEmoji.FromName(ctx.Client, ":botemoji:"));
     }
