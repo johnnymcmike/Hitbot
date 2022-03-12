@@ -42,6 +42,7 @@ internal class Program
             .AddSingleton(new LottoManager(redis))
             .AddSingleton(new DailyFlagManager(redis))
             .AddSingleton(new ContraptionManager(redis))
+            .AddSingleton(redis)
             .AddSingleton<Random>()
             .BuildServiceProvider();
 

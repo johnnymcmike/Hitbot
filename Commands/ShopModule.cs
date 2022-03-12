@@ -2,16 +2,19 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Hitbot.Services;
+using StackExchange.Redis;
 
 namespace Hitbot.Commands;
 
 public class ShopModule : BaseCommandModule
 {
     private EconManager Econ { get; }
+    private IDatabase db { get; }
 
-    public ShopModule(EconManager eco)
+    public ShopModule(EconManager eco, ConnectionMultiplexer redis)
     {
         Econ = eco;
+        db = redis.GetDatabase();
     }
 
     [Command("emojishop")]
@@ -54,10 +57,15 @@ public class ShopModule : BaseCommandModule
             ms = await (await http.GetAsync(myAttachment.Url)).Content.ReadAsStreamAsync();
         }
 
-        var emojiToDelete = ctx.Guild.Emojis.Values.ToList().Find(x => x.Name == ":botemoji:") as DiscordGuildEmoji;
+        if (db.KeyExists("shop:emojiID"))
+        {
+            var emojiToDelete = await ctx.Guild.GetEmojiAsync((ulong) db.StringGet("shop:emojiID"));
+            await ctx.Guild.DeleteEmojiAsync(emojiToDelete);
+        }
 
-        await ctx.Guild.DeleteEmojiAsync(emojiToDelete); //TODO: seems bad
-        await ctx.Guild.CreateEmojiAsync("botemoji", ms);
+        var wa = await ctx.Guild.CreateEmojiAsync("botemoji", ms);
+        db.StringSet("shop:emojiID", wa.Id);
+
         await ctx.RespondAsync($"{DiscordEmoji.FromName(ctx.Client, ":botemoji:")} :)");
         Econ.BookDecr(callerstring, 200);
     }
