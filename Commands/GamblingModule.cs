@@ -93,6 +93,7 @@ public class GamblingModule : BaseCommandModule
     [Command("duel")]
     public async Task DuelCommand(CommandContext ctx, DiscordMember target, int bet = 0)
     {
+        bet = Math.Abs(bet);
         InteractivityExtension? interactivity = ctx.Client.GetInteractivity();
         DiscordMember? caller = ctx.Member;
         DiscordEmoji? triumph = DiscordEmoji.FromName(ctx.Client, ":triumph:");
