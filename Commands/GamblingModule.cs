@@ -48,9 +48,9 @@ public class GamblingModule : BaseCommandModule
             new(":cowredeyes:", 10),
             new(":cowredeyes:", 10),
             new(":cowredeyes:", 10),
-            new(":it:", 5),
-            new(":it:", 5),
-            new(":it:", 5)
+            new(":botemoji:", 5),
+            new(":botemoji:", 5),
+            new(":botemoji:", 5)
         };
         string slotresultstr = " ";
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
