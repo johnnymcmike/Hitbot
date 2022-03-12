@@ -167,7 +167,7 @@ public class EconModule : BaseCommandModule
     public async Task TurgleCommand(CommandContext ctx, int amount = 100000)
     {
         string callerstring = Program.GetBalancebookString(ctx.Member);
-        Econ.BookDecr(callerstring, amount);
+        Econ.BookDecr(callerstring, Math.Abs(amount));
         await ctx.RespondAsync(
             $"You turgled away {amount} perfectly good {Econ.Currencyname}, leaving you with {Econ.BookGet(callerstring)}.");
     }
