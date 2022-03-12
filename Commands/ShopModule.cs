@@ -54,12 +54,7 @@ public class ShopModule : BaseCommandModule
             ms = await (await http.GetAsync(myAttachment.Url)).Content.ReadAsStreamAsync();
         }
 
-        var emojiToDelete = DiscordEmoji.FromName(ctx.Client, ":botemoji:") as DiscordGuildEmoji;
-        if (emojiToDelete is null)
-        {
-            Console.WriteLine("yep it's null");
-            return;
-        }
+        var emojiToDelete = ctx.Guild.Emojis.Values.ToList().Find(x => x.Name == "botemoji") as DiscordGuildEmoji;
 
         await ctx.Guild.DeleteEmojiAsync(emojiToDelete); //TODO: seems bad
         await ctx.Guild.CreateEmojiAsync("botemoji", ms);
