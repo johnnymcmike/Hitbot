@@ -381,7 +381,8 @@ public class GamblingModule : BaseCommandModule
                 {
                     realWinner = key;
                 }
-                else if (value.GetHandWeight() == duplicateScores[realWinner].GetHandWeight())
+                else if (value.GetHandWeight() == duplicateScores[realWinner].GetHandWeight() &&
+                         !duplicateScores[realWinner].Equals(value))
                 {
                     await ctx.Channel.SendMessageAsync("There was a *true* tie, so all tied players win.");
                     foreach (var (winner, _) in duplicateScores)
