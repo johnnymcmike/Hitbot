@@ -1,5 +1,4 @@
-﻿using DSharpPlus.Entities;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace Hitbot.Services;
 
@@ -10,12 +9,17 @@ public class ContraptionManager
     private const int cap = 1000;
     private const int MethodRange = 4;
 
-    public ContraptionManager(ConnectionMultiplexer redis)
+    public ContraptionManager(ConnectionMultiplexer redis, Random rnd)
     {
         db = redis.GetDatabase();
-        rng = new Random();
+        rng = rnd;
     }
 
+    /// <summary>
+    ///     Increments the redis key for the contraption's stored value. Resets to 0 if the amount put it over the cap.
+    /// </summary>
+    /// <param name="amount"></param>
+    /// <returns>True if it went over and reset, false otherwise.</returns>
     private bool IncrContraption(int amount)
     {
         db.StringIncrement("contraption:value", amount);
@@ -28,10 +32,15 @@ public class ContraptionManager
         return false;
     }
 
-    public int Feed(int amount, DiscordMember user)
+    public int Feed(int amount)
     {
         if (IncrContraption(amount))
             return 0;
-        return 0;
+        return rng.Next(1, 7);
+    }
+
+    public string CurrentValueString()
+    {
+        return $"{db.StringGet("contraption:value")}/{cap}";
     }
 }

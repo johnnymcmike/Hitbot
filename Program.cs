@@ -35,15 +35,15 @@ internal class Program
             PollBehaviour = PollBehaviour.KeepEmojis,
             Timeout = TimeSpan.FromSeconds(30)
         });
-
+        var rng = new Random();
         ConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         ServiceProvider? services = new ServiceCollection()
             .AddSingleton(new EconManager(redis))
             .AddSingleton(new LottoManager(redis))
             .AddSingleton(new DailyFlagManager(redis))
-            .AddSingleton(new ContraptionManager(redis))
+            .AddSingleton(new ContraptionManager(redis, rng))
             .AddSingleton(redis)
-            .AddSingleton<Random>()
+            .AddSingleton(rng)
             .BuildServiceProvider();
 
         CommandsNextExtension? commands = discord.UseCommandsNext(new CommandsNextConfiguration

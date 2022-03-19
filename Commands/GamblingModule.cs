@@ -64,7 +64,8 @@ public class GamblingModule : BaseCommandModule
             string choice = possemo[Rand.Next(emojidefs.Count)];
             results[i] = choice;
             await Task.Delay(i * 1000);
-            slotresultstr += DiscordEmoji.FromName(ctx.Client, choice).ToString();
+            slotresultstr +=
+                DiscordEmoji.FromName(ctx.Client, choice).ToString(); //TODO: this is whats rate limiting you
             await slotmsg.ModifyAsync(slotresultstr);
         }
 
