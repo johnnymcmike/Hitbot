@@ -62,7 +62,13 @@ public class ContraptionModule : BaseCommandModule
                     return;
                 }
 
-                await ctx.Guild.ModifyAsync(x => x.Name = changemessage.Result.Content[..100]);
+                string sendthis;
+                if (changemessage.Result.Content.Length <= 100)
+                    sendthis = changemessage.Result.Content;
+                else
+                    sendthis = changemessage.Result.Content.Substring(0, 100);
+
+                await ctx.Guild.ModifyAsync(x => x.Name = sendthis);
                 await ctx.Channel.SendMessageAsync("Change has come.");
                 break;
             case 3:
