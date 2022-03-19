@@ -7,7 +7,6 @@ public class ContraptionManager
     private IDatabase db { get; }
     private Random rng { get; }
     private const int cap = 1000;
-    private const int MethodRange = 4;
 
     public ContraptionManager(ConnectionMultiplexer redis, Random rnd)
     {
@@ -34,7 +33,7 @@ public class ContraptionManager
 
     public int Feed(int amount)
     {
-        if (IncrContraption(amount))
+        if (!IncrContraption(amount))
             return 0;
         return rng.Next(1, 7);
     }
