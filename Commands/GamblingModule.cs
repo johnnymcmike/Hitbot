@@ -26,6 +26,7 @@ public class GamblingModule : BaseCommandModule
     [Command("slots")]
     public async Task SlotMachine(CommandContext ctx, int bet = 1)
     {
+        bet = Math.Abs(bet);
         DiscordMember? caller = ctx.Member;
         string callerString = Program.GetBalancebookString(caller);
         if (!Econ.BookHasKey(callerString) || Econ.BookGet(callerString) < bet)
