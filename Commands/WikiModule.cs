@@ -38,7 +38,7 @@ public class WikiModule : BaseCommandModule
                 $"https://en.wikipedia.org/w/api.php?action=opensearch&search={searchstring}&limit=1&namespace=0&format=json");
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
-        string? wa = Convert.ToString(JObject.Parse(content)[3]);
+        string? wa = Convert.ToString(JObject.Parse(content).First);
         if (wa is null)
         {
             await ctx.RespondAsync("this should never happen");
