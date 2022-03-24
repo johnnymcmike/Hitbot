@@ -39,10 +39,12 @@ public class WikiModule : BaseCommandModule
                 $"https://en.wikipedia.org/w/api.php?action=opensearch&search={searchstring}&limit=1&namespace=0&format=json");
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
-        var wa = JsonConvert.DeserializeObject<List<object>>(content);
-        string? b = wa[3].ToString();
+        var wa = JsonConvert.DeserializeObject<List<string>>(content);
+        string? b = wa[3];
         if (!string.IsNullOrEmpty(b))
         {
+            b = b.Substring(b.IndexOf("http"));
+            b = b.Substring(0, b.IndexOf("\""));
             await ctx.RespondAsync(b);
             return;
         }
