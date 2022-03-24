@@ -29,4 +29,26 @@ public class WikiModule : BaseCommandModule
 
         await ctx.RespondAsync(finalresponse);
     }
+
+    [Command("search")]
+    public async Task SearchWikipediaTask(CommandContext ctx, [RemainingText] string searchstring)
+    {
+        var response = await _http.GetAsync($"https://en.wikipedia.org/api/rest_v1/page/summary/{searchstring}");
+        response.EnsureSuccessStatusCode();
+        string content = await response.Content.ReadAsStringAsync();
+        if (content.Contains("\"title\":\"Not found.\""))
+        {
+            await ctx.RespondAsync("not found");
+            return;
+        }
+
+        string? finalresponse = Convert.ToString(JObject.Parse(content)["content_urls"]?["desktop"]?["page"]);
+        if (finalresponse is null)
+        {
+            await ctx.RespondAsync("this should never happen");
+            return;
+        }
+
+        await ctx.RespondAsync(finalresponse);
+    }
 }
