@@ -38,7 +38,7 @@ public class WikiModule : BaseCommandModule
                 $"https://en.wikipedia.org/w/api.php?action=opensearch&search={searchstring}&limit=1&namespace=0&format=json");
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
-        string wa = content.Split('[')[3];
+        string wa = content.Split('[')[4];
         Console.WriteLine(wa);
         if (wa.IndexOf("\"") == -1)
         {
