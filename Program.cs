@@ -36,6 +36,7 @@ internal class Program
             Timeout = TimeSpan.FromSeconds(30)
         });
         var rng = new Random();
+        var http = new HttpClient();
         ConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         ServiceProvider? services = new ServiceCollection()
             .AddSingleton(new EconManager(redis))
@@ -44,6 +45,7 @@ internal class Program
             .AddSingleton(new ContraptionManager(redis, rng))
             .AddSingleton(redis)
             .AddSingleton(rng)
+            .AddSingleton(http)
             .BuildServiceProvider();
 
         CommandsNextExtension? commands = discord.UseCommandsNext(new CommandsNextConfiguration
