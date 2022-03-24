@@ -39,7 +39,13 @@ public class WikiModule : BaseCommandModule
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
         string wa = content.Split('[')[3];
-        wa = wa.Substring(0, wa.IndexOf("\'"));
+        if (wa.IndexOf("\"") == -1)
+        {
+            await ctx.RespondAsync("not found");
+            return;
+        }
+
+        wa = wa.Substring(0, wa.IndexOf("\""));
         await ctx.RespondAsync(wa);
     }
 }
