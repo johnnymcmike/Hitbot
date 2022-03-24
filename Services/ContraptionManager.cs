@@ -6,7 +6,7 @@ public class ContraptionManager
 {
     private IDatabase db { get; }
     private Random rng { get; }
-    private const int cap = 1000;
+    public int cap = 1000;
 
     public ContraptionManager(ConnectionMultiplexer redis, Random rnd)
     {
@@ -36,6 +36,11 @@ public class ContraptionManager
         if (!IncrContraption(amount))
             return 0;
         return rng.Next(1, 7);
+    }
+
+    public int Value()
+    {
+        return (int) db.StringGet("contraption:value");
     }
 
     public string CurrentValueString()

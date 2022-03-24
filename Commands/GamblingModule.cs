@@ -13,44 +13,50 @@ public class GamblingModule : BaseCommandModule
     private EconManager Econ { get; }
     private LottoManager Lotto { get; }
     private Random Rand { get; }
+    private ContraptionManager Contraption { get; }
 
-    public GamblingModule(EconManager eco, Random rng, LottoManager lot)
+    public GamblingModule(EconManager eco, Random rng, LottoManager lot, ContraptionManager cont)
     {
         Econ = eco;
         Rand = rng;
         Lotto = lot;
+        Contraption = cont;
     }
 
     [Command("slots")]
-    public async Task SlotMachine(CommandContext ctx)
+    public async Task SlotMachine(CommandContext ctx, int bet = 1)
     {
         DiscordMember? caller = ctx.Member;
         string callerString = Program.GetBalancebookString(caller);
-        if (!Econ.BookHasKey(callerString) || Econ.BookGet(callerString) < 1)
+        if (!Econ.BookHasKey(callerString) || Econ.BookGet(callerString) < bet)
         {
             await ctx.Channel.SendMessageAsync("Insufficient funds.");
             return;
         }
 
-        Econ.BookDecr(callerString);
+        Econ.BookDecr(callerString, bet);
         Lotto.IncrPot();
+        if (Contraption.cap - Contraption.Value() > 1)
+            Contraption.Feed(1);
 
         var emojidefs = new List<KeyValuePair<string, int>>
         {
-            new(":1kbtroll:", -420),
-            new(":seven:", 300),
-            new(":cherries:", 15),
-            new(":cherries:", 15),
-            new(":fish:", 20),
-            new(":fish:", 20),
-            new(":bigshot:", 15),
-            new(":bigshot:", 15),
-            new(":cowredeyes:", 10),
-            new(":cowredeyes:", 10),
-            new(":cowredeyes:", 10),
-            new(":botemoji:", 5),
-            new(":botemoji:", 5),
-            new(":botemoji:", 5)
+            new(":1kbtroll:", -400),
+            new(":seven:", 400),
+            new(":cherries:", 100),
+            new(":cherries:", 100),
+            new(":fish:", 40),
+            new(":fish:", 40),
+            new(":bigshot:", 20),
+            new(":bigshot:", 20),
+            new(":cowredeyes:", 16),
+            new(":cowredeyes:", 16),
+            new(":cowredeyes:", 16),
+            new(":botemoji:", 4),
+            new(":botemoji:", 4),
+            new(":botemoji:", 4),
+            new(":highscore:", 40),
+            new(":highscore:", 40)
         };
         string slotresultstr = " ";
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
@@ -74,7 +80,7 @@ public class GamblingModule : BaseCommandModule
             string emoji = possemo[i];
             if (results.Count(x => x == emoji) == 2)
             {
-                int reward = emojidefs[i].Value / 3;
+                int reward = emojidefs[i].Value / 4 * bet;
                 Econ.BookIncr(callerString, reward);
                 await ctx.RespondAsync($"Two {emoji}s! You win {reward} {Econ.Currencyname}! Yippee!");
                 return;
@@ -82,7 +88,7 @@ public class GamblingModule : BaseCommandModule
 
             if (results.Count(x => x == emoji) == 3)
             {
-                int reward = emojidefs[i].Value;
+                int reward = emojidefs[i].Value * bet;
                 Econ.BookIncr(callerString, reward);
                 await ctx.RespondAsync(
                     $"THREE {emoji}s! that's a JACKBOT baybee! {reward} {Econ.Currencyname}!!!");
