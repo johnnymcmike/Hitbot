@@ -1,6 +1,5 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Hitbot.Commands;
@@ -39,16 +38,13 @@ public class WikiModule : BaseCommandModule
                 $"https://en.wikipedia.org/w/api.php?action=opensearch&search={searchstring}&limit=1&namespace=0&format=json");
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
-        var wa = JsonConvert.DeserializeObject<List<string>>(content);
-        string? b = wa[3];
-        if (!string.IsNullOrEmpty(b))
+        string? wa = Convert.ToString(JObject.Parse(content)[3]?[0]);
+        if (wa is null)
         {
-            b = b.Substring(b.IndexOf("http"));
-            b = b.Substring(0, b.IndexOf("\""));
-            await ctx.RespondAsync(b);
+            await ctx.RespondAsync("this should never happen");
             return;
         }
 
-        await ctx.RespondAsync("not found");
+        await ctx.RespondAsync(wa);
     }
 }
