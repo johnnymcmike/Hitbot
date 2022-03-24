@@ -39,6 +39,7 @@ public class WikiModule : BaseCommandModule
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
         string wa = content.Split('[')[4];
+        wa = wa.Substring(1);
         Console.WriteLine(wa);
         if (wa.IndexOf("\"") == -1)
         {
