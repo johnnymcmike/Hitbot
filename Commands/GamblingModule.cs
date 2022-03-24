@@ -62,7 +62,7 @@ public class GamblingModule : BaseCommandModule
             new(":iskra6:", 20),
             new(":iskra6:", 20),
             new(":ComedyHitmen:", 30),
-            new(":ComedyHitmen", 30)
+            new(":ComedyHitmen:", 30)
         };
         string slotresultstr = " ";
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
