@@ -27,7 +27,9 @@ public class GamblingModule : BaseCommandModule
     public async Task SlotMachine(CommandContext ctx, int bet = 1)
     {
         bet = Math.Abs(bet);
-        DiscordMember? caller = ctx.Member;
+        if (bet > 20)
+            bet = 20;
+        var caller = ctx.Member;
         string callerString = Program.GetBalancebookString(caller);
         if (!Econ.BookHasKey(callerString) || Econ.BookGet(callerString) < bet)
         {
@@ -44,8 +46,7 @@ public class GamblingModule : BaseCommandModule
         {
             new(":1kbtroll:", -400),
             new(":seven:", 400),
-            new(":cherries:", 100),
-            new(":cherries:", 100),
+            new(":cherries:", 60),
             new(":fish:", 40),
             new(":fish:", 40),
             new(":bigshot:", 20),
@@ -57,7 +58,11 @@ public class GamblingModule : BaseCommandModule
             new(":botemoji:", 4),
             new(":botemoji:", 4),
             new(":highscore:", 40),
-            new(":highscore:", 40)
+            new(":highscore:", 40),
+            new(":iskra6:", 20),
+            new(":iskra6:", 20),
+            new(":ComedyHitmen:", 30),
+            new(":ComedyHitmen", 30)
         };
         string slotresultstr = " ";
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
