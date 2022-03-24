@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Hitbot.Commands;
@@ -33,22 +34,19 @@ public class WikiModule : BaseCommandModule
     [Command("search")]
     public async Task SearchWikipediaTask(CommandContext ctx, [RemainingText] string searchstring)
     {
-        var response = await _http.GetAsync($"https://en.wikipedia.org/api/rest_v1/page/summary/{searchstring}");
+        var response =
+            await _http.GetAsync(
+                $"https://en.wikipedia.org/w/api.php?action=opensearch&search={searchstring}&limit=1&namespace=0&format=json");
         response.EnsureSuccessStatusCode();
         string content = await response.Content.ReadAsStringAsync();
-        if (content.Contains("\"title\":\"Not found.\""))
+        var wa = JsonConvert.DeserializeObject<List<object>>(content);
+        string? b = wa[3].ToString();
+        if (!string.IsNullOrEmpty(b))
         {
-            await ctx.RespondAsync("not found");
+            await ctx.RespondAsync(b);
             return;
         }
 
-        string? finalresponse = Convert.ToString(JObject.Parse(content)["content_urls"]?["desktop"]?["page"]);
-        if (finalresponse is null)
-        {
-            await ctx.RespondAsync("this should never happen");
-            return;
-        }
-
-        await ctx.RespondAsync(finalresponse);
+        await ctx.RespondAsync("not found");
     }
 }
