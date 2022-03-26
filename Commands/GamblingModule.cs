@@ -44,8 +44,7 @@ public class GamblingModule : BaseCommandModule
 
         var emojidefs = new List<KeyValuePair<string, int>>
         {
-            new(":1kbtroll:", -600),
-            new(":1kbtroll:", -600),
+            new(":1kbtroll:", -500),
             new(":seven:", 400),
             new(":cherries:", 60),
             new(":fish:", 40),
