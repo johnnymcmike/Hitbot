@@ -67,7 +67,7 @@ public class DadJokeModule : BaseCommandModule
         {
             request.Headers.Add("Accept", "text/plain");
             var response = await _http.SendAsync(request);
-            await ctx.Channel.SendMessageAsync(response.Content.ToString());
+            await ctx.Channel.SendMessageAsync(await response.Content.ReadAsStringAsync());
         }
     }
 }
