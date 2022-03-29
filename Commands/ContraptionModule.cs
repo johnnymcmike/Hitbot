@@ -26,6 +26,7 @@ public class ContraptionModule : BaseCommandModule
     [Description("Feed the contraption your riches. Who knows what may come...")]
     public async Task FeedCommand(CommandContext ctx, int amount)
     {
+        amount = Math.Abs(amount);
         var interactivity = ctx.Client.GetInteractivity();
         string callerstring = Program.GetBalancebookString(ctx.Member);
         if (amount > Econ.BookGet(callerstring))
