@@ -37,6 +37,7 @@ internal class Program
         });
         var rng = new Random();
         var http = new HttpClient();
+        http.DefaultRequestHeaders.Add("User-Agent", "Epic C# Discord Bot (mbjmcm@gmail.com)");
         ConnectionMultiplexer redis = await ConnectionMultiplexer.ConnectAsync("localhost");
         ServiceProvider? services = new ServiceCollection()
             .AddSingleton(new EconManager(redis))

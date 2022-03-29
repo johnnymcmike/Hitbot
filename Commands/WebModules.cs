@@ -50,3 +50,24 @@ public class WikiModule : BaseCommandModule
         await ctx.RespondAsync(wa);
     }
 }
+
+public class DadJokeModule : BaseCommandModule
+{
+    private readonly HttpClient _http;
+
+    public DadJokeModule(HttpClient ht)
+    {
+        _http = ht;
+    }
+
+    [Command("dadjoke")]
+    public async Task DadJokeCommand(CommandContext ctx)
+    {
+        using (var request = new HttpRequestMessage(HttpMethod.Get, "icanhazdadjoke.com"))
+        {
+            request.Headers.Add("Accept", "text/plain");
+            var response = await _http.SendAsync(request);
+            await ctx.Channel.SendMessageAsync(response.Content.ToString());
+        }
+    }
+}
