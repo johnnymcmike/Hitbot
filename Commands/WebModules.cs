@@ -63,7 +63,7 @@ public class DadJokeModule : BaseCommandModule
     [Command("dadjoke")]
     public async Task DadJokeCommand(CommandContext ctx)
     {
-        using (var request = new HttpRequestMessage(HttpMethod.Get, "icanhazdadjoke.com"))
+        using (var request = new HttpRequestMessage(HttpMethod.Get, "https://icanhazdadjoke.com/"))
         {
             request.Headers.Add("Accept", "text/plain");
             var response = await _http.SendAsync(request);
