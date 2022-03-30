@@ -51,11 +51,11 @@ public class WikiModule : BaseCommandModule
     }
 }
 
-public class DadJokeModule : BaseCommandModule
+public class APIStuffModule : BaseCommandModule
 {
     private readonly HttpClient _http;
 
-    public DadJokeModule(HttpClient ht)
+    public APIStuffModule(HttpClient ht)
     {
         _http = ht;
     }
@@ -69,5 +69,13 @@ public class DadJokeModule : BaseCommandModule
             var response = await _http.SendAsync(request);
             await ctx.Channel.SendMessageAsync(await response.Content.ReadAsStringAsync());
         }
+    }
+
+    [Command("qr")]
+    [Description(
+        "Attempts to generate and then embed a QR code based on the link you send in this command. Only lasts for 24 hours.")]
+    public async Task QrCommand(CommandContext ctx, string url)
+    {
+        await ctx.RespondAsync($"https://qrtag.net/api/qr.png?url={url}");
     }
 }
