@@ -67,7 +67,7 @@ public class APIStuffModule : BaseCommandModule
         {
             request.Headers.Add("Accept", "text/plain");
             var response = await _http.SendAsync(request);
-            await ctx.Channel.SendMessageAsync(await response.Content.ReadAsStringAsync());
+            await ctx.RespondAsync(await response.Content.ReadAsStringAsync());
         }
     }
 
@@ -94,5 +94,23 @@ public class APIStuffModule : BaseCommandModule
         }
 
         await ctx.RespondAsync(finalresponse);
+    }
+
+    [Command("urlshorten")]
+    [Description(
+        "Shortens a given URL with the 1pt API. Optionally specify a custom short URL. Will give you back a random five-letter string if no custom name is specified, or if the name you specified is already taken.")]
+    public async Task UrlShortenCommand(CommandContext ctx, string url, string shorturl = "hi")
+    {
+        var response = await _http.GetAsync($"https://1pt.com/api/addURL?long={url}&short={shorturl}");
+        response.EnsureSuccessStatusCode();
+        string content = await response.Content.ReadAsStringAsync();
+        string? finalresponse = Convert.ToString(JObject.Parse(content)["short"]);
+        if (finalresponse is null)
+        {
+            await ctx.RespondAsync("this should never happen");
+            return;
+        }
+
+        await ctx.RespondAsync($"https://1pt.co/{finalresponse}");
     }
 }
