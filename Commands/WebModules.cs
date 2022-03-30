@@ -78,4 +78,21 @@ public class APIStuffModule : BaseCommandModule
     {
         await ctx.RespondAsync($"https://qrtag.net/api/qr.png?url={url}");
     }
+
+    [Command("fact")]
+    [Description("Gets a random fact from the API.")]
+    public async Task FactCommand(CommandContext ctx)
+    {
+        var response = await _http.GetAsync("https://uselessfacts.jsph.pl/random.json?language=en");
+        response.EnsureSuccessStatusCode();
+        string content = await response.Content.ReadAsStringAsync();
+        string? finalresponse = Convert.ToString(JObject.Parse(content)["text"]);
+        if (finalresponse is null)
+        {
+            await ctx.RespondAsync("this should never happen");
+            return;
+        }
+
+        await ctx.RespondAsync(finalresponse);
+    }
 }
