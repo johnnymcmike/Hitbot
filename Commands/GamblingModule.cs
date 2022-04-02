@@ -45,24 +45,24 @@ public class GamblingModule : BaseCommandModule
         var emojidefs = new List<KeyValuePair<string, int>>
         {
             new(":1kbtroll:", -500),
-            new(":1kbtroll:", 400),
-            new(":1kbtroll:", 60),
-            new(":1kbtroll:", 40),
-            new(":1kbtroll:", 40),
-            new(":1kbtroll:", 20),
-            new(":1kbtroll:", 20),
-            new(":1kbtroll:", 16),
-            new(":1kbtroll:", 16),
-            new(":1kbtroll:", 16),
-            new(":1kbtroll:", 4),
-            new(":1kbtroll:", 4),
-            new(":1kbtroll:", 4),
-            new(":1kbtroll:", 40),
-            new(":1kbtroll:", 40),
-            new(":1kbtroll:", 20),
-            new(":1kbtroll:", 20),
-            new(":1kbtroll:", 30),
-            new(":1kbtroll:", 30)
+            new(":seven:", 400),
+            new(":cherries:", 60),
+            new(":fish:", 40),
+            new(":fish:", 40),
+            new(":bigshot:", 20),
+            new(":bigshot:", 20),
+            new(":cowredeyes:", 16),
+            new(":cowredeyes:", 16),
+            new(":cowredeyes:", 16),
+            new(":botemoji:", 4),
+            new(":botemoji:", 4),
+            new(":botemoji:", 4),
+            new(":highscore:", 40),
+            new(":highscore:", 40),
+            new(":iskra6:", 20),
+            new(":iskra6:", 20),
+            new(":ComedyHitmen:", 30),
+            new(":ComedyHitmen:", 30)
         };
         string slotresultstr = " ";
         DiscordMessage slotmsg = await ctx.Channel.SendMessageAsync("Spinning...");
